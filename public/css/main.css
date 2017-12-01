@@ -1,0 +1,27 @@
+html,
+body {
+  padding: 0;
+  margin: 0;
+  background: black;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+#imgHolder, #vidHolder {
+  width: 100%;
+  height: 100%;
+}
+
+#imgHolder {
+  background-size: cover;
+  background-position: center;
+}
+
+#vidHolder {
+  object-fit: cover;
+}
+
+.hidden {
+  display: none;
+}
