@@ -5,6 +5,7 @@ const express = require('express');
 const compression = require('compression');
 const session = require('express-session');
 const bodyParser = require('body-parser');
+const sass = require('node-sass-middleware');
 const logger = require('morgan');
 const chalk = require('chalk');
 const errorHandler = require('errorhandler');
@@ -13,22 +14,33 @@ const flash = require('express-flash');
 const path = require('path');
 const expressValidator = require('express-validator');
 const expressStatusMonitor = require('express-status-monitor');
-
+const socketIO = require('socket.io');
+const scripts = require('./scripts');
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
  */
 dotenv.load({ path: '.env.example' });
 
 /**
- * Controllers (route handlers).
- */
-const homeController = require('./controllers/home');
-const apiController = require('./controllers/api');
-
-/**
  * Create Express server.
  */
+
 const app = express();
+const server = require('http').createServer(app);
+const io = socketIO(server);
+app.io = io;
+
+io.on('connection', (socket) => {
+  const listenClientsInterval = setInterval(() => {
+    scripts.getApClientsList()
+      .then((data) => {
+        console.log('jem');
+        console.log(data);
+        listenClientsInterval();
+      })
+      .catch(() => {});
+  }, 5000);
+});
 
 /**
  * Express configuration.
@@ -39,6 +51,11 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.use(expressStatusMonitor());
 app.use(compression());
+app.use(sass({
+  debug: true,
+  src: path.join(__dirname, 'stylesheets'),
+  dest: path.join(__dirname, 'public')
+}));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -62,17 +79,15 @@ app.use((req, res, next) => {
   // }
   next();
 });
+app.use((req, res, next) => {
+  res.setHeader('Expires', '-1');
+  res.setHeader('Cache-Control', 'no-cache');
+  next();
+});
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }));
 
-/**
- * Primary app routes.
- */
-app.get('/', homeController.index);
-
-/**
- * API examples routes.
- */
-app.get('/api', apiController.getApi);
+// Add routes
+require('./app/routes/index')(app);
 
 /**
  * Error Handler.
@@ -82,9 +97,7 @@ app.use(errorHandler());
 /**
  * Start Express server.
  */
-app.listen(app.get('port'), app.get('host'), () => {
+server.listen(app.get('port'), app.get('host'), () => {
   console.log('%s App is running at http://localhost:%d in %s mode', chalk.green('✓'), app.get('port'), app.get('env'));
   console.log('  Press CTRL-C to stop\n');
 });
-
-module.exports = app;
