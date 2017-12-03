@@ -11,3 +11,10 @@ function showSection(sectionName) {
 }
 
 showSection('init-intro');
+setTimeout(() => {
+  socket.on('init-event', (data) => {
+	 if(data.section) {
+		showSection(data.section); 
+     } 
+  });
+});

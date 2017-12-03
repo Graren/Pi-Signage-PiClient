@@ -10,14 +10,13 @@ body {
   background-image: url("../assets/background.jpg");
   background-size: cover;
   background-position: center;
-  font-size: 92px; }
+  font-size: 60px; }
 
 .hidden {
   display: none; }
 
 .center {
-  text-align: center;
-  font-size: 72px; }
+  text-align: center; }
 
 .center-content {
   width: 100%;
@@ -39,7 +38,8 @@ body {
   .init-wrapper #screen-code {
     margin-top: auto;
     margin-bottom: 2%;
-    margin-left: 1%; }
+    margin-left: 1%;
+    font-size: 92px; }
 
 #imgHolder, #vidHolder {
   width: 100%;

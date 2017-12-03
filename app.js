@@ -31,15 +31,22 @@ const io = socketIO(server);
 app.io = io;
 
 io.on('connection', (socket) => {
+  let clientConnectedToAP = false;
   const listenClientsInterval = setInterval(() => {
     scripts.getApClientsList()
-      .then((data) => {
-        console.log('jem');
-        console.log(data);
-        listenClientsInterval();
+      .then((clientsList) => {
+        if (!clientConnectedToAP && clientsList.length > 0) {
+		  clientConnectedToAP = true;
+		  socket.emit('init-event', { section: 'init-create-screen', data: {} });	
+		}
       })
-      .catch(() => {});
-  }, 5000);
+      .catch((err) => {
+	    if (clientConnectedToAP) {
+		  socket.emit('location', { location: 'init' });	
+		  clientConnectedToAP = false;
+		}
+	  });
+  }, 2000);
 });
 
 /**
