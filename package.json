@@ -14,11 +14,13 @@
     "eslint": "eslint **/*.js"
   },
   "dependencies": {
+    "amqplib": "^0.5.2",
     "bcrypt-nodejs": "^0.0.3",
     "body-parser": "^1.17.2",
     "chalk": "^2.1.0",
     "change-case": "^3.0.1",
     "cheerio": "^1.0.0-rc.2",
+    "chokidar": "^1.7.0",
     "clockwork": "^0.1.4",
     "compression": "^1.7.0",
     "dotenv": "^4.0.0",
@@ -36,7 +38,8 @@
     "request": "^2.81.0",
     "require-dir": "^0.3.2",
     "socket.io": "^2.0.4",
-    "validator": "^8.0.0"
+    "validator": "^8.0.0",
+    "zeromq": "^4.6.0"
   },
   "devDependencies": {
     "chai": "^4.1.1",

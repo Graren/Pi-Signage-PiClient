@@ -8,10 +8,10 @@ module.exports = () => new Promise((resolve, reject) => {
     let match = stationsRegex.exec(stationsInfo);
     const apClientsList = [];
     while(match!=null) {
-	  apClientsList.push(match[1]);
-	  match = stationsRegex.exec(stationsInfo);
-	}
-	resolve(apClientsList);
+      apClientsList.push(match[1]);
+      match = stationsRegex.exec(stationsInfo);
+    }
+	  resolve(apClientsList);
   });
   child.on('error', reject);
   child.on('exit', reject);
