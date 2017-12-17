@@ -16,7 +16,7 @@ createStore(rootReducer)
 
 subsock.connect('tcp://127.0.0.1:'+ stPort);
 subsock.subscribe('state');
-console.log('Subscriber for : websocket connected to port '+ stPort);
+console.log('Subscriber for : state connected to port '+ stPort);
 
 subsock.on('message', function(topic, message) {
     console.log('received a message related to:', topic, 'containing message:', message);

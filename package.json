@@ -22,6 +22,7 @@
     "cheerio": "^1.0.0-rc.2",
     "chokidar": "^1.7.0",
     "clockwork": "^0.1.4",
+    "colors": "^1.1.2",
     "compression": "^1.7.0",
     "dotenv": "^4.0.0",
     "errorhandler": "^1.5.0",
