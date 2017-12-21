@@ -13,7 +13,7 @@ const bindDispatcher = () => {
             subsock.subscribe('websocket');
         
             subsock.on('message', function(topic, message) {
-                console.log('received a message related to:', topic, 'containing message:', message);
+                console.log('received a message related to:', topic.toString(), 'containing message:', message.toString());
                 const action = JSON.parse(message)
                 console.log(action)
             });

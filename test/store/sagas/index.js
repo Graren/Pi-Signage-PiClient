@@ -34,10 +34,8 @@ const a_saga = (action, dispatch) => {
      let result 
     switch(action.type){
         case B_FETCH:
-            console.log("niggawat")
             dispatch(action)
             a = await download(action.url, action.name, action.format)
-            console.log("Ummm")
             if(a.error) {
                 result = {
                     type: B_FAILURE,
