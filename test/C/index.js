@@ -5,8 +5,8 @@ const C = () => {
     const fs = require('fs');
     const { log, DEBUG, WARNING, ERROR } = require('./../dispatcher')
     
-    const destination = `test/A`
-    
+    const destination = `A`
+    const folder = 'test'
     // const proc = process.stdout.write.bind(process.stdout)
     
     const component = 'C-watcher';
@@ -16,13 +16,12 @@ const C = () => {
         // proc(`C: File ${path} has been added`)   
         const p = path.split(/(\/ |\\)/)
         const sliced = p.slice(3)
-        const actualPath = paths.join(...sliced)
-        const dest = `${destination}${actualPath}`
+        const actualPath = paths.join(folder, destination, ...sliced)
         const rd = fs.createReadStream(path);
         rd.on("error", function(err) {
             log.log(`An error happened reading ${err.toString()}`, ERROR, component)
         });
-        const wr = fs.createWriteStream(dest);
+        const wr = fs.createWriteStream(actualPath);
         wr.on("error", function(err) {
             log.log(`An error happened writing${err.toString()}`, ERROR, component)
         });
@@ -35,13 +34,12 @@ const C = () => {
         // proc(`C: File ${path} has been changed`)    
         const p = path.split(/(\/ |\\)/)
         const sliced = p.slice(3)
-        const actualPath = paths.join(...sliced)
-        const dest = `${destination}${actualPath}`
+        const actualPath = paths.join(folder, destination, ...sliced)        
         const rd = fs.createReadStream(path);
         rd.on("error", function(err) {
             log.log(`An error happened reading ${err.toString()}`, ERROR, component)
         });
-        const wr = fs.createWriteStream(dest);
+        const wr = fs.createWriteStream(actualPath);
         wr.on("error", function(err) {
             log.log(`An error happened writing${err.toString()}`, ERROR, component)
         });
