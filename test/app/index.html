@@ -9,12 +9,16 @@
 <body>
     <div>
         <input id="input" type="text">
+        <input id="name" type="text">        
         <button id="button">Test server</button>
+    
     </div>
 </body>
 <script>
     const button = document.querySelector('#button')
     const input = document.querySelector('#input')
+    const nameInput = document.querySelector('#name'
+)
     const exampleSocket = new WebSocket("ws://localhost:8080");
     exampleSocket.onopen = function (event) {
         console.log("WS open"); 
@@ -23,7 +27,15 @@
 
     button.onclick = () => {
         const val = input.value
-        exampleSocket.send(val)
+        const name = nameInput.value
+        const aName = name.split('.')[0]
+        const format = name.split('.')[1]
+        const data = {
+            url: val,
+            name:aName,
+            format
+        }
+        exampleSocket.send(JSON.stringify(data))
     }
 </script>
 </html>

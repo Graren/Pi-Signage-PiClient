@@ -5,7 +5,7 @@ const C = () => {
     const fs = require('fs');
     const { log, DEBUG, WARNING, ERROR } = require('./../dispatcher')
     
-    const destination = `A`
+    const destination = `test/A`
     
     // const proc = process.stdout.write.bind(process.stdout)
     
@@ -15,7 +15,7 @@ const C = () => {
         console.log(`C: File ${path} has been added`)
         // proc(`C: File ${path} has been added`)   
         const p = path.split(/(\/ |\\)/)
-        const sliced = p.slice(1)
+        const sliced = p.slice(3)
         const actualPath = paths.join(...sliced)
         const dest = `${destination}${actualPath}`
         const rd = fs.createReadStream(path);
@@ -34,7 +34,7 @@ const C = () => {
         // log(`C: File ${path} has been changed`)
         // proc(`C: File ${path} has been changed`)    
         const p = path.split(/(\/ |\\)/)
-        const sliced = p.slice(1)
+        const sliced = p.slice(3)
         const actualPath = paths.join(...sliced)
         const dest = `${destination}${actualPath}`
         const rd = fs.createReadStream(path);
@@ -54,7 +54,7 @@ const C = () => {
         // proc(`C: File ${path} has been fucked`) 
     }
     
-    watch.watch('./C',onAdd,onChange,onDelete, { ignored: /\S+\.(MD|js|gitignore)/ ,persistent: true })
+    watch.watch('./test/C',onAdd,onChange,onDelete, { ignored: /\S+\.(MD|js|gitignore)/ ,persistent: true })
     
     process.on('beforeExit', async () => {
         await watch.close(() => console.log("EXITED"), ()  => console.log("FUCK"))

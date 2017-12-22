@@ -59,10 +59,13 @@ app.use(function (req, res) {
     // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
   
     ws.on('message', function incoming(message) {
-      log.log(message,DEBUG, "idk")
+      // log.log(message,DEBUG, "idk")
+      const data = JSON.parse(message)
       const action = {
-                type: 'C_FETCH',
-                data: message 
+          type: 'B_FETCH',
+          url: data.url,
+          name: data.name,
+          format: data.format
       }
       pubsock.send(['state', JSON.stringify(action)])
     });

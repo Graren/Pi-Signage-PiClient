@@ -23,7 +23,7 @@ const A = () => {
         log.log(`A: File ${path} has been deleted`, DEBUG, component)    
     }
     
-    watch.watch('./A',onAdd,onChange,onDelete, { ignored: /\S+\.(MD|js|gitignore)/ ,persistent: true })
+    watch.watch('./test/A',onAdd,onChange,onDelete, { ignored: /\S+\.(MD|js|gitignore)/ ,persistent: true })
     
     process.on('beforeExit', async () => {
         await watch.close(() => proc("EXITED"), ()  => proc("FUCK"))
