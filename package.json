@@ -40,6 +40,8 @@
     "require-dir": "^0.3.2",
     "socket.io": "^2.0.4",
     "validator": "^8.0.0",
+    "websocket": "^1.0.25",
+    "ws": "^3.3.3",
     "zeromq": "^4.6.0"
   },
   "devDependencies": {

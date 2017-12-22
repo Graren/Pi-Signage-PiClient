@@ -1,5 +1,4 @@
 const zmq = require('zeromq')
-
 const logsock = zmq.socket('pub')
 const { wsPort, stPort, logPort, levels } = require('../config/constants')
 

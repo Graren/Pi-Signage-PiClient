@@ -23,9 +23,6 @@ const a_saga = (action, dispatch) => {
         case A_FAILURE:
             dispatch(action)
             break
-        default:
-            dispatch(action)
-            break
     }
 }
 
@@ -61,24 +58,19 @@ const a_saga = (action, dispatch) => {
         case B_FAILURE:
             dispatch(action)    
             break
-        default:
-            dispatch(action)    
-            break
     }
 }
 
  const c_saga = ( action, dispatch) => {
     switch(action.type){
         case C_FETCH:
-            dispatch(action)        
+            //TODO: CHANGE THIS
+            console.log(action)        
             break
         case C_SUCCESS:
             dispatch(action)    
             break
         case C_FAILURE:
-            dispatch(action)
-            break
-        default:
             dispatch(action)
             break
     }

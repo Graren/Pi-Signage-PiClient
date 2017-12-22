@@ -19,7 +19,6 @@ subsock.subscribe('state');
 console.log('Subscriber for : state connected to port '+ stPort);
 
 subsock.on('message', function(topic, message) {
-    console.log('received a message related to:', topic, 'containing message:', message);
     const action = JSON.parse(message)
     sagaDispatch(action)
 });

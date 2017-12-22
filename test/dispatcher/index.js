@@ -1,5 +1,4 @@
 const zmq = require('zeromq')
- 
 const pubsock = zmq.socket('pub')
 const subsock = zmq.socket('sub')
 const { wsPort, stPort, logPort, levels } = require('../config/constants')
@@ -13,7 +12,7 @@ const bindDispatcher = () => {
             subsock.subscribe('websocket');
         
             subsock.on('message', function(topic, message) {
-                console.log('received a message related to:', topic.toString(), 'containing message:', message.toString());
+                //Los mensajes llegan en ascii, si tal hacerles toString()
                 const action = JSON.parse(message)
                 console.log(action)
             });
