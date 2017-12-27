@@ -9,7 +9,8 @@
 <body>
     <div>
         <input id="input" type="text">
-        <input id="name" type="text">        
+        <input id="name" type="text">       
+        <input id="number" type="text">        
         <button id="button">Save file</button>
         <button id="delete">Delete</button>        
     </div>
@@ -23,6 +24,7 @@
     const input = document.querySelector('#input')
     const nameInput = document.querySelector('#name')
     const deleteButton= document.querySelector('#delete')
+    const num = document.querySelector('#number')
 
     const exampleSocket = new WebSocket("ws://localhost:8080");
     exampleSocket.onopen = function (event) {
@@ -35,16 +37,24 @@
         const name = nameInput.value
         const aName = name.split('.')[0]
         const format = name.split('.')[1]
-        const data = {
-            url: val,
-            id: aName,
-            format
+        const number = parseInt(num.value) || 1
+        const msgs = []
+
+        for(i = 0 ; i < number; i++){
+            const data = {
+                url: val,
+                id: parseInt(aName) + i,
+                format
+            }
+            const msg = {
+                action: ADD,
+                payload: data
+            }
+            msgs.push(msg)
         }
-        const msg = {
-            action: ADD,
-            payload: data
-        }
-        exampleSocket.send(JSON.stringify(msg))
+        msgs.map(msg => {
+            exampleSocket.send(JSON.stringify(msg))        
+        })
     }
 
     deleteButton.onclick = () => {
@@ -52,14 +62,22 @@
         const name = nameInput.value
         const aName = name.split('.')[0]
         const format = name.split('.')[1]
-        const data = {
-            id: aName,
+        const number = parseInt(num.value) || 1
+        const msgs = []
+
+        for(i = 0 ; i < number; i++){
+            const data = {
+                id:  parseInt(aName) + i,
+            }
+            const msg = {
+                action: DELETE,
+                payload: data
+            }
+            msgs.push(msg)
         }
-        const msg = {
-            action: DELETE,
-            payload: data
-        }
-        exampleSocket.send(JSON.stringify(msg))
+        msgs.map(msg => {
+           exampleSocket.send(JSON.stringify(msg))
+        })
     }
 </script>
 </html>

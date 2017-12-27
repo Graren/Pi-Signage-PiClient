@@ -22,7 +22,7 @@ const A = (pubsock) => {
         // proc(`A: File ${path} has been changed`) 
         const name = path.split(sep).pop()
         const format = name.split('.')[1]
-        const id = name.split('.')[0]        
+        const id = parseInt(name.split('.')[0])      
         const action = {
             type: A_SUCCESS,
             videos: [{
@@ -42,7 +42,7 @@ const A = (pubsock) => {
         // proc(`A: File ${path} has been fucked`)
         const name = path.split(sep).pop()
         const format = name.split('.')[1]
-        const id = name.split('.')[0]     
+        const id = parseInt(name.split('.')[0])
         log.log(`A: File ${path} has been deleted`, DEBUG, component)    
         const action = {
             type: A_DELETE_SUCCESS,

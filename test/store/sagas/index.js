@@ -36,9 +36,9 @@ const a_saga = async(action, dispatch, root) => {
         
         case A_DELETE:
             state = dispatch(action);
-            
             ((state, dispatch) => {
                 const mutableState = Object.assign({},state)
+                console.log(mutableState)
                 const vid = mutableState.a.videos.filter((video) => video.id === action.id)
                 if(vid.length > 0){
                     const res = deleteFile(vid[0].path)
@@ -64,7 +64,7 @@ const a_saga = async(action, dispatch, root) => {
                     }
                     dispatch(result)
                 }
-            })(state, dispatch)
+            })(state, dispatch);
             break
         case A_DELETE_SUCCESS:
             dispatch(action)
@@ -131,7 +131,8 @@ const a_saga = async(action, dispatch, root) => {
             root(result, dispatch)
             break
         case C_SUCCESS:
-            dispatch(action)    
+            dispatch(action)
+
             break
         case C_FAILURE:
             dispatch(action)
@@ -139,7 +140,7 @@ const a_saga = async(action, dispatch, root) => {
         case C_DELETE:
             state = dispatch(action);
             
-            ((state, dispatch) => {
+            ((state, dispatch, root) => {
                 const mutableState = Object.assign({},state)
                 const vid = mutableState.c.videos.filter((video) => video.id === action.id)
                 if(vid.length > 0){
@@ -158,6 +159,7 @@ const a_saga = async(action, dispatch, root) => {
                         }
                         const act = Object.assign({}, action, { type: A_DELETE })
                         dispatch(result)
+                        console.log(act)
                         root(act, dispatch)
                     }
                 }
@@ -168,7 +170,7 @@ const a_saga = async(action, dispatch, root) => {
                     }
                     dispatch(result)
                 }
-            })(state, dispatch)
+            })(state, dispatch, root)
             break
         default:
             break;
