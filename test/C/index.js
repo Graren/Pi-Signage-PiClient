@@ -12,7 +12,6 @@ const C = () => {
     const component = 'C-watcher';
     
     const onAdd = (path) => {
-        console.log(`C: File ${path} has been added`)
         // proc(`C: File ${path} has been added`)   
         const p = path.split(/(\/ |\\)/)
         const sliced = p.slice(3)

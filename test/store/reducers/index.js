@@ -2,13 +2,22 @@ const {
     A_FETCH,
     A_SUCCESS,
     A_FAILURE,
+    A_DELETE,
+    A_DELETE_FAILURE,
+    A_DELETE_SUCCESS,
     B_FETCH,
     B_SUCCESS,
     B_FAILURE,
     B_NEW_VIDEO,
+    B_DELETE_VIDEO,
+    B_DELETE_PLAYLIST,
     C_FETCH,
     C_SUCCESS,
-    C_FAILURE } = require('../actions')
+    C_FAILURE,
+    C_DELETE,
+    C_DELETE_SUCCESS,
+    C_DELETE_FAILURE
+} = require('../actions')
 
 const initial_state_a = {
     videos: [],
@@ -32,6 +41,7 @@ const initial_state_c = {
 
 const a_reducer = (action, state) => {
     state = state || initial_state_a;
+    let v
     switch(action.type){
         case A_FETCH:
             return Object.assign({}, state, {
@@ -50,6 +60,17 @@ const a_reducer = (action, state) => {
         case A_FAILURE:
             return Object.assign({}, state, {
                 error: action.error
+            })
+            break
+        case A_DELETE:
+            return Object.assign({}, state, {
+                syncing: true
+            })
+            break
+        case A_DELETE_SUCCESS:
+            v = state.videos.filter((video) => video.id !== action.id)
+            return Object.assign({}, state, {
+                videos: v
             })
             break
         default:
@@ -108,6 +129,22 @@ const a_reducer = (action, state) => {
                 error: action.error
             })
             break
+        case C_DELETE:
+            return Object.assign({}, state, {
+                syncing: true
+            })
+            break;
+        case C_DELETE_FAILURE:
+            return Object.assign({}, state, {
+                error: action.error
+            })
+            break;
+        case C_DELETE_SUCCESS:
+            v = state.videos.filter((video) => video.id !== action.id)
+            return Object.assign({}, state, {
+                videos: v
+            })
+            break;
         default:
             return state
             break

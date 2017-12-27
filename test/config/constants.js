@@ -7,9 +7,18 @@ const levels = {
     ERROR: 3
 }
 
+const DELETE = 'DELETE'
+const ADD = 'ADD'
+const CHANGE_PLAYLIST = 'CHANGE_PLAYLIST'
+const DELETE_PLAYLIST = 'DELETE_PLAYLIST'
+
 module.exports = {
     wsPort: websocketPublisherPort,
     stPort: statePublisherPort,
     logPort: logPublisherPort,
-    levels
+    levels,
+    DELETE,
+    ADD,
+    CHANGE_PLAYLIST,
+    DELETE_PLAYLIST
 }

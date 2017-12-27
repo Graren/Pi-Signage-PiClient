@@ -1,8 +1,9 @@
 const { spawn, execFile } = require('child_process')
 const randomstring = require('randomstring');
 const path = require('path')
-const { wsPort } = require('./config/constants');
+const { wsPort, ADD, DELETE, CHANGE_PLAYLIST, DELETE_PLAYLIST } = require('./config/constants');
 const { bindDispatcher } = require('./dispatcher')
+const { B_FETCH, B_FAILURE, B_SUCCESS, B_NEW_PLAYLIST, B_DELETE_PLAYLIST, B_DELETE_VIDEO } = require('./store/actions/index')
 
 const express = require('express');
 const http = require('http');
@@ -21,7 +22,7 @@ var pubsock = null;
 
 //this is test code
 bindDispatcher().then((socket) => {
-    A();
+    A(socket);
     C();
     pubsock = socket
     // setTimeout(() => {
@@ -57,19 +58,48 @@ app.use(function (req, res) {
     const location = url.parse(req.url, true);
     // You might use location.query.access_token to authenticate or share sessions
     // or req.headers.cookie (see http://stackoverflow.com/a/16395220/151312)
-  
+    const handle = ({action, payload}) => {
+      let state_action;
+      switch(action){
+          case DELETE:
+          state_action = {
+                  type: B_DELETE_VIDEO,
+                  id: payload.id,
+              }
+            break;
+          case ADD:
+              state_action = {
+                type: B_FETCH,
+                id: payload.id,
+                url: payload.url,
+                name: payload.id,
+                format: payload.format || '.jpg'
+            }
+            break;
+          case CHANGE_PLAYLIST:
+            const { playlist } = payload  
+            state_action = {
+                type: B_NEW_PLAYLIST,
+                playlist
+            }
+            break;
+          case DELETE_PLAYLIST:
+            state_action = {
+              type: B_DELETE_PLAYLIST
+            }
+            break;
+          default:
+            state_action = {}
+            break;
+      }
+      return state_action
+  }
     ws.on('message', function incoming(message) {
       // log.log(message,DEBUG, "idk")
-      const data = JSON.parse(message)
-      const action = {
-          type: 'B_FETCH',
-          url: data.url,
-          name: data.name,
-          format: data.format
-      }
+      const msg = JSON.parse(message)
+      const action = handle(msg)
       pubsock.send(['state', JSON.stringify(action)])
     });
-    ws.send('something');
   });
   
   server.listen(8080, function listening() {

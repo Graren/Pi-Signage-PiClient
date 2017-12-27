@@ -19,7 +19,7 @@ const download = (fileUrl, name, format, cwd) => {
                 }).on('end', function() {
                     file.end();
                     resolve({
-                        data: 'Data written succesfully'
+                        data: file.path
                     })
                 }).on('error', () => {
                     reject({

@@ -10,15 +10,20 @@
     <div>
         <input id="input" type="text">
         <input id="name" type="text">        
-        <button id="button">Test server</button>
-    
+        <button id="button">Save file</button>
+        <button id="delete">Delete</button>        
     </div>
 </body>
 <script>
+    const DELETE = 'DELETE'
+    const ADD = 'ADD'
+    const CHANGE_PLAYLIST = 'CHANGE_PLAYLIST'
+    const DELETE_PLAYLIST = 'DELETE_PLAYLIST'
     const button = document.querySelector('#button')
     const input = document.querySelector('#input')
-    const nameInput = document.querySelector('#name'
-)
+    const nameInput = document.querySelector('#name')
+    const deleteButton= document.querySelector('#delete')
+
     const exampleSocket = new WebSocket("ws://localhost:8080");
     exampleSocket.onopen = function (event) {
         console.log("WS open"); 
@@ -32,10 +37,29 @@
         const format = name.split('.')[1]
         const data = {
             url: val,
-            name:aName,
+            id: aName,
             format
         }
-        exampleSocket.send(JSON.stringify(data))
+        const msg = {
+            action: ADD,
+            payload: data
+        }
+        exampleSocket.send(JSON.stringify(msg))
+    }
+
+    deleteButton.onclick = () => {
+        const val = input.value
+        const name = nameInput.value
+        const aName = name.split('.')[0]
+        const format = name.split('.')[1]
+        const data = {
+            id: aName,
+        }
+        const msg = {
+            action: DELETE,
+            payload: data
+        }
+        exampleSocket.send(JSON.stringify(msg))
     }
 </script>
 </html>

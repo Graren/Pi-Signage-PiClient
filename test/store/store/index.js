@@ -18,7 +18,8 @@ const getState = () => {
 const dispatch = ( action ) => {
     const state = _state.rootReducer(action, _state.state)
     _state.state = state
-    console.log(state)
+    console.log(JSON.stringify(state))
+    return _state.state
 }
 
 const sagaDispatch = ( action ) => {
