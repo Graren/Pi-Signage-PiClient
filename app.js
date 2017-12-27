@@ -13,9 +13,12 @@ const dotenv = require('dotenv');
 const flash = require('express-flash');
 const path = require('path');
 const expressValidator = require('express-validator');
+const fetch = require('node-fetch');
 const expressStatusMonitor = require('express-status-monitor');
 const socketIO = require('socket.io');
 const scripts = require('./scripts');
+const configPaths = require('./app/configPaths');
+
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
  */
@@ -38,15 +41,39 @@ io.on('connection', (socket) => {
         if (!clientConnectedToAP && clientsList.length > 0) {
 		  clientConnectedToAP = true;
 		  socket.emit('init-event', { section: 'init-create-screen', data: {} });	
-		}
+        }
       })
       .catch((err) => {
 	    if (clientConnectedToAP) {
 		  socket.emit('location', { location: 'init' });	
 		  clientConnectedToAP = false;
-		}
-	  });
+	    }
+      });
   }, 2000);
+  
+socket.on('connect-wifi', () => {
+  let connectTimeout, checkInternetInterval;
+  require('child_process').spawn('sh', [path.join(configPaths.appFolder, 'start_wifi_client.sh')], { stdio: 'inherit' });
+  let hasInternet = false;
+  connectTimeout = setTimeout(() => {
+    if(!hasInternet) {
+      require('child_process').spawn('sh', [path.join(configPaths.appFolder, 'start_wifi_ap.sh')], { stdio: 'inherit' });
+    }
+    clearInterval(checkInternetInterval);
+    console.log('definitivamente no ha internet');
+  }, 30000);
+  checkInternetInterval = setInterval(() => {
+    fetch('http://doihaveinternet.com')
+      .then(res => {
+         clearInterval(checkInternetInterval);
+         clearTimeout(connectTimeout);
+         console.log('yes');
+       })
+       .catch(() => {
+          console.log('no');
+       });
+  }, 6000);
+});
 });
 
 /**
