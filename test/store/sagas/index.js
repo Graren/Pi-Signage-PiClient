@@ -16,13 +16,16 @@ const {
     C_FAILURE,
     C_DELETE,
     C_DELETE_SUCCESS,
-    C_DELETE_FAILURE
+    C_DELETE_FAILURE,
+    A_DELETE_PLAYLIST,
+    C_DELETE_PLAYLIST
 } = require('../actions')
 
 const download = require('./../downloader/index');
 const deleteFile = require('./../downloader/deleter');
 
 const a_saga = async(action, dispatch, root) => {
+    let state
     switch(action.type){
         case A_FETCH:
             dispatch(action)
@@ -36,12 +39,11 @@ const a_saga = async(action, dispatch, root) => {
         
         case A_DELETE:
             state = dispatch(action);
-            ((state, dispatch) => {
+            (async (state, dispatch) => {
                 const mutableState = Object.assign({},state)
-                console.log(mutableState)
                 const vid = mutableState.a.videos.filter((video) => video.id === action.id)
                 if(vid.length > 0){
-                    const res = deleteFile(vid[0].path)
+                    const res = await deleteFile(vid[0].path)
                     if(res.error){
                         const result = {
                             type: A_DELETE_FAILURE,
@@ -72,6 +74,26 @@ const a_saga = async(action, dispatch, root) => {
         case A_DELETE_FAILURE:
             dispatch(action)
             break
+        case A_DELETE_PLAYLIST:
+            state = dispatch({ type: 'Filler' });
+            (async (state, dispatch, root) => {
+                const mutableState = Object.assign({},state)
+                const vidPromises = mutableState.a.videos.map((video) => {
+                    return deleteFile(video.path)
+                })
+                const res = await Promise.all(vidPromises)
+                if (res.error){
+                    const result = {
+                        type: A_DELETE_FAILURE,
+                        error: 'File not found'
+                    }
+                    dispatch(result)
+                }
+                else{
+                    dispatch({type: A_DELETE_PLAYLIST})
+                }
+            })(state, dispatch, root)
+            break;
         default:
             break;
     }
@@ -97,6 +119,10 @@ const a_saga = async(action, dispatch, root) => {
             action2 = Object.assign({}, action, { type: C_DELETE })
             root(action2, dispatch)    
             break;
+        case B_DELETE_PLAYLIST:
+            action2 = { type: C_DELETE_PLAYLIST }
+            root(action2, dispatch)
+            break
         default:
             break;
     }
@@ -159,7 +185,6 @@ const a_saga = async(action, dispatch, root) => {
                         }
                         const act = Object.assign({}, action, { type: A_DELETE })
                         dispatch(result)
-                        console.log(act)
                         root(act, dispatch)
                     }
                 }
@@ -172,6 +197,27 @@ const a_saga = async(action, dispatch, root) => {
                 }
             })(state, dispatch, root)
             break
+        case C_DELETE_PLAYLIST:
+            state = dispatch({ type: 'Filler' });
+            (async (state, dispatch, root) => {
+                const mutableState = Object.assign({},state)
+                const vidPromises = mutableState.c.videos.map((video) => {
+                    return deleteFile(video.path)
+                })
+                const res = await Promise.all(vidPromises)
+                if (res.error){
+                    const result = {
+                        type: C_DELETE_FAILURE,
+                        error: 'File not found'
+                    }
+                    dispatch(result)
+                }
+                else{
+                    dispatch({type: C_DELETE_PLAYLIST})
+                }
+                root({ type: A_DELETE_PLAYLIST } ,dispatch)
+            })(state, dispatch, root)
+            break;
         default:
             break;
     }

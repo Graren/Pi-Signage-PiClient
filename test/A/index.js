@@ -44,11 +44,11 @@ const A = (pubsock) => {
         const format = name.split('.')[1]
         const id = parseInt(name.split('.')[0])
         log.log(`A: File ${path} has been deleted`, DEBUG, component)    
-        const action = {
-            type: A_DELETE_SUCCESS,
-            id
-        }
-        pubsock.send(['state', JSON.stringify(action)])       
+        // const action = {
+        //     type: A_DELETE_SUCCESS,
+        //     id
+        // }
+        // pubsock.send(['state', JSON.stringify(action)])       
     }
     
     watch.watch('./test/A',onAdd,onChange,onDelete, { ignored: /\S+\.(MD|js|gitignore)/ ,persistent: true })

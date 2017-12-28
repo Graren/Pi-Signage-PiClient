@@ -16,7 +16,9 @@ const {
     C_FAILURE,
     C_DELETE,
     C_DELETE_SUCCESS,
-    C_DELETE_FAILURE
+    C_DELETE_FAILURE,
+    A_DELETE_PLAYLIST,
+    C_DELETE_PLAYLIST
 } = require('../actions')
 
 const initial_state_a = {
@@ -71,6 +73,11 @@ const a_reducer = (action, state) => {
             v = state.videos.filter((video) => video.id !== action.id)
             return Object.assign({}, state, {
                 videos: v
+            })
+            break
+        case A_DELETE_PLAYLIST:
+            return Object.assign({}, state, {
+                videos: []
             })
             break
         default:
@@ -145,6 +152,11 @@ const a_reducer = (action, state) => {
                 videos: v
             })
             break;
+        case C_DELETE_PLAYLIST:
+            return Object.assign({}, state, {
+                videos: []
+            })
+            break
         default:
             return state
             break

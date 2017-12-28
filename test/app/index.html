@@ -12,7 +12,9 @@
         <input id="name" type="text">       
         <input id="number" type="text">        
         <button id="button">Save file</button>
-        <button id="delete">Delete</button>        
+        <button id="delete">Delete</button>
+        <button id="deleteAll">Delete all</button> 
+        
     </div>
 </body>
 <script>
@@ -24,6 +26,8 @@
     const input = document.querySelector('#input')
     const nameInput = document.querySelector('#name')
     const deleteButton= document.querySelector('#delete')
+    const deleteAllButton= document.querySelector('#deleteAll')
+    
     const num = document.querySelector('#number')
 
     const exampleSocket = new WebSocket("ws://localhost:8080");
@@ -79,5 +83,13 @@
            exampleSocket.send(JSON.stringify(msg))
         })
     }
+
+    deleteAllButton.onclick = () => {
+        const msg = {
+            action: DELETE_PLAYLIST,
+        }
+        exampleSocket.send(JSON.stringify(msg))
+    }
+    
 </script>
 </html>

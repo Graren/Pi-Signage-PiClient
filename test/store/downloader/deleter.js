@@ -7,7 +7,7 @@ const deleteFile = (filePath) => {
             if(err){
                 reject({error: 'Could not delete file'})
             }
-            resolve()
+            resolve({})
         })
     })
 }
