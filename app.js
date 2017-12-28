@@ -84,8 +84,9 @@ subsock.connect('tcp://127.0.0.1:'+ wbPort);
 subsock.subscribe('client');
 
 subsock.on('message', function(topic, message) {
-  const action = JSON.parse(message)
-  console.log(action)
+  const state = JSON.parse(message)
+  console.log(JSON.stringify(state))
+  io.emit('current-state', state)
 });
 
 

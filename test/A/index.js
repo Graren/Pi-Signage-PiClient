@@ -3,7 +3,8 @@ const A = (pubsock) => {
     const { log, DEBUG, WARNING } = require('./../dispatcher')
     const { A_FETCH, A_SUCCESS, A_FAILURE, A_DELETE_SUCCESS} = require('./../store/actions/index')
     const { sep } = require('path')
-    
+    const p = require('path')
+
     const proc = process.stdout.write.bind(process.stdout)
     const component = 'A-watcher';
     
@@ -25,7 +26,7 @@ const A = (pubsock) => {
                 id,
                 name,
                 format,
-                path
+                path: p.join(__dirname, ".." , ".." , path)
             }]
         }
         // console.log(JSON.stringify(action.videos))
