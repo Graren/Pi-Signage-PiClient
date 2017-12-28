@@ -19,7 +19,8 @@ const {
     C_DELETE_SUCCESS,
     C_DELETE_FAILURE,
     A_DELETE_PLAYLIST,
-    C_DELETE_PLAYLIST
+    C_DELETE_PLAYLIST,
+    C_START
 } = require('../actions')
 
 const download = require('./../downloader/index');
@@ -230,6 +231,8 @@ const a_saga = async(action, dispatch, root) => {
                 root({ type: A_DELETE_PLAYLIST } ,dispatch)
             })(state, dispatch, root)
             break;
+        case C_START:
+            dispatch(action)
         default:
             break;
     }

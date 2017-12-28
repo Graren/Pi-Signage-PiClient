@@ -76,6 +76,19 @@ socket.on('connect-wifi', () => {
 });
 });
 
+const zmq = require('zeromq');
+const subsock = zmq.socket('sub')
+const { wbPort } = require('./test/config/constants')
+
+subsock.connect('tcp://127.0.0.1:'+ wbPort);
+subsock.subscribe('client');
+
+subsock.on('message', function(topic, message) {
+  const action = JSON.parse(message)
+  console.log(action)
+});
+
+
 /**
  * Express configuration.
  */

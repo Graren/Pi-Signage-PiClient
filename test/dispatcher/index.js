@@ -10,13 +10,7 @@ const bindDispatcher = () => {
             pubsock.bindSync('tcp://127.0.0.1:' + stPort);
             subsock.connect('tcp://127.0.0.1:'+ wsPort);
             subsock.subscribe('websocket');
-        
-            subsock.on('message', function(topic, message) {
-                //Los mensajes llegan en ascii, si tal hacerles toString()
-                const action = JSON.parse(message)
-                console.log(action)
-            });
-            resolve(pubsock)
+            resolve({ pubsock, subsock })
         }
         catch(e){
             reject(e)

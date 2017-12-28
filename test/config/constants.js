@@ -1,6 +1,8 @@
 const websocketPublisherPort = 3024
 const statePublisherPort = 3021
 const logPublisherPort = 3023
+const wbPort = 3025
+
 const levels = {
     DEBUG: 1,
     WARNING: 2,
@@ -16,6 +18,7 @@ module.exports = {
     wsPort: websocketPublisherPort,
     stPort: statePublisherPort,
     logPort: logPublisherPort,
+    wbPort,
     levels,
     DELETE,
     ADD,
