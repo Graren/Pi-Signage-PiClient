@@ -4,7 +4,7 @@ const C = () => {
     const paths = require('path')
     const fs = require('fs');
     const { log, DEBUG, WARNING, ERROR } = require('./../dispatcher')
-    
+    const { sep } = require('path')    
     const destination = `A`
     const folder = 'test'
     // const proc = process.stdout.write.bind(process.stdout)
@@ -13,7 +13,7 @@ const C = () => {
     
     const onAdd = (path) => {
         // proc(`C: File ${path} has been added`)   
-        const p = path.split(/(\/ |\\)/)
+        const p = path.split(sep)
         const sliced = p.slice(3)
         const actualPath = paths.join(folder, destination, ...sliced)
         const rd = fs.createReadStream(path);

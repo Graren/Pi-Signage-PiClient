@@ -78,9 +78,17 @@ app.use(function (req, res) {
             break;
           case CHANGE_PLAYLIST:
             const { playlist } = payload  
+            const videos = playlist.map(video => {
+              return {
+                id: video.id,
+                url: video.url,
+                name: video.id,
+                format: video.format || '.jpg'
+              }
+            })
             state_action = {
                 type: B_NEW_PLAYLIST,
-                playlist
+                playlist: videos
             }
             break;
           case DELETE_PLAYLIST:
@@ -98,6 +106,7 @@ app.use(function (req, res) {
       // log.log(message,DEBUG, "idk")
       const msg = JSON.parse(message)
       const action = handle(msg)
+      console.log(action)
       pubsock.send(['state', JSON.stringify(action)])
     });
   });

@@ -11,6 +11,7 @@ const {
     B_NEW_VIDEO,
     B_DELETE_VIDEO,
     B_DELETE_PLAYLIST,
+    B_NEW_PLAYLIST,
     C_FETCH,
     C_SUCCESS,
     C_FAILURE,
@@ -81,8 +82,8 @@ const a_saga = async(action, dispatch, root) => {
                 const vidPromises = mutableState.a.videos.map((video) => {
                     return deleteFile(video.path)
                 })
-                const res = await Promise.all(vidPromises)
-                if (res.error){
+                const res = await Promise.all(vidPromises).catch(e => ({ error: e.error }))
+                if (res.error) {
                     const result = {
                         type: A_DELETE_FAILURE,
                         error: 'File not found'
@@ -123,6 +124,17 @@ const a_saga = async(action, dispatch, root) => {
             action2 = { type: C_DELETE_PLAYLIST }
             root(action2, dispatch)
             break
+        case B_NEW_PLAYLIST:
+            action.playlist.map(video => {
+                const action2 = {
+                    type: C_FETCH,
+                    url: video.url,
+                    name: video.name,
+                    format: video.format,
+                    id: video.id
+                }
+                root(action2, dispatch)
+            })
         default:
             break;
     }
@@ -136,7 +148,7 @@ const a_saga = async(action, dispatch, root) => {
     switch(action.type){
         case C_FETCH:
             dispatch(action)
-            a = await download(action.url, action.name, action.format)
+            a = await download(action.url, action.name, action.format).catch(e => ({ error: e.error }))
             if(a.error) {
                 result = {
                     type: C_FAILURE,
@@ -170,7 +182,7 @@ const a_saga = async(action, dispatch, root) => {
                 const mutableState = Object.assign({},state)
                 const vid = mutableState.c.videos.filter((video) => video.id === action.id)
                 if(vid.length > 0){
-                    const res = deleteFile(vid[0].path)
+                    const res = deleteFile(vid[0].path).catch(e => ({ error: e.error }))
                     if(res.error){
                         const result = {
                             type: C_DELETE_FAILURE,

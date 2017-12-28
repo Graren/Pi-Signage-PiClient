@@ -3,9 +3,9 @@ const path = require('path')
 
 const deleteFile = (filePath) => {
     return new Promise((resolve, reject) => {
-        fs.unlink(filePath,(err) => {
-            if(err){
-                reject({error: 'Could not delete file'})
+        fs.unlink(filePath,(error) => {
+            if(error){
+                reject( new Error({error}) )
             }
             resolve({})
         })

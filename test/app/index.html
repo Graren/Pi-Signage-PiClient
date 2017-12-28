@@ -14,7 +14,7 @@
         <button id="button">Save file</button>
         <button id="delete">Delete</button>
         <button id="deleteAll">Delete all</button> 
-        
+        <button id="playlist">Playlist</button>         
     </div>
 </body>
 <script>
@@ -27,7 +27,8 @@
     const nameInput = document.querySelector('#name')
     const deleteButton= document.querySelector('#delete')
     const deleteAllButton= document.querySelector('#deleteAll')
-    
+    const playlistButton = document.querySelector('#playlist')
+
     const num = document.querySelector('#number')
 
     const exampleSocket = new WebSocket("ws://localhost:8080");
@@ -91,5 +92,30 @@
         exampleSocket.send(JSON.stringify(msg))
     }
     
+    playlistButton.onclick = () => {
+        const val = input.value
+        const name = nameInput.value
+        const aName = name.split('.')[0]
+        const format = name.split('.')[1]
+        const number = parseInt(num.value) || 1
+        const playlist = []
+
+        for(i = 0 ; i < number; i++){
+            const data = {
+                url: val,
+                id: parseInt(aName) + i,
+                format
+            }
+            playlist.push(data)
+        }
+
+        const msg = {
+                action: CHANGE_PLAYLIST,
+                payload: {
+                    playlist
+                }
+            }
+        exampleSocket.send(JSON.stringify(msg))
+    }
 </script>
 </html>
