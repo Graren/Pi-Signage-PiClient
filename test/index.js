@@ -17,7 +17,7 @@ var pubsock = null;
 //this is test code
 bindDispatcher().then(({pubsock, subsock}) => {
     A(pubsock);
-    C();
+    C(pubsock);
     pubsock = pubsock
     
     const handle = ({action, payload}) => {
@@ -69,27 +69,7 @@ bindDispatcher().then(({pubsock, subsock}) => {
       //Los mensajes llegan en ascii, si tal hacerles toString()
       const msg = JSON.parse(message)
       const action = handle(msg)
-      console.log(action)
+      log.log(JSON.stringify(action), DEBUG, 'Websocket subscriber message handler')
       pubsock.send(['state', JSON.stringify(action)])
     });
-    // setTimeout(() => {
-    //     const action = {
-    //         type: 'B_FETCH',
-    //         url: 'https://i.pinimg.com/236x/05/a2/73/05a2736deebc8e5e2a88c0a6a897a997.jpg',
-    //         name: "somefile1",
-    //         format: 'jpg'
-    //     }
-    
-    //     const action2 = {
-    //         type: 'B_FETCH',
-    //         url: 'https://i.pinimg.com/236x/05/a2/73/05a2736deebc8e5e2a88c0a6a897a997.jpg',
-    //         name: "somefile2",
-    //         format: 'jpg'
-    //     }
-    
-    //     socket.send(['state', JSON.stringify(action)]);
-    //     setTimeout(() => {
-    //         socket.send(['state', JSON.stringify(action2)]);
-    //     },10000)
-    // }, 10000);
 })

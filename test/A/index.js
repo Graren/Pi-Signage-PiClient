@@ -7,7 +7,7 @@ const A = (pubsock) => {
 
     const proc = process.stdout.write.bind(process.stdout)
     const component = 'A-watcher';
-    
+
     const onAdd = (path) => {
         // enqueue(`A: File ${path} has been added`)
         // proc(`A: File ${path} has been added`)
@@ -67,12 +67,13 @@ const A = (pubsock) => {
         // }
         // pubsock.send(['state', JSON.stringify(action)])       
     }
-    
-    watch.watch('./test/A',onAdd,onChange,onDelete, { ignored: /\S+\.(MD|js|gitignore)/ ,persistent: true })
-    
-    process.on('beforeExit', async () => {
-        await watch.close(() => proc("EXITED"), ()  => proc("FUCK"))
-    })
+    setTimeout(() => {    
+        watch.watch('./test/A',onAdd,onChange,onDelete, { ignored: /\S+\.(MD|js|gitignore)/})
+        
+        process.on('beforeExit', async () => {
+            await watch.close(() => proc("EXITED"), ()  => proc("FUCK"))
+        })
+    }, 2000)
 }
 
 module.exports = A;

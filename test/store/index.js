@@ -12,8 +12,8 @@ subsock.subscribe('state');
 
 clientsock.bindSync('tcp://127.0.0.1:' + wbPort)
 
-console.log('Subscriber for : state connected to port '+ stPort);
-console.log('Publisher')
+console.log('Subscriber for state connected to port '+ stPort);
+console.log('Publisher for state on port ' + wbPort)
 subsock.on('message', function(topic, message) {
     const action = JSON.parse(message)
     sagaDispatch(action)

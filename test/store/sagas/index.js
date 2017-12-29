@@ -126,6 +126,8 @@ const a_saga = async(action, dispatch, root) => {
             root(action2, dispatch)
             break
         case B_NEW_PLAYLIST:
+            action2 = Object.assign({},action, { type: C_DELETE_PLAYLIST })
+            root(action2, dispatch)
             action.playlist.map(video => {
                 const action2 = {
                     type: C_FETCH,

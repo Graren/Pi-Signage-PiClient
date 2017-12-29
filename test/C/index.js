@@ -8,11 +8,12 @@ const C = (pubsock) => {
     const destination = `A`
     const folder = 'test'
     const { C_START } = require('./../store/actions/index')
-    
     // const proc = process.stdout.write.bind(process.stdout)
     
     const component = 'C-watcher';
-    
+    const firstRunTimer = 3000
+    let firstRun = true
+
     const onAdd = (path) => {
         // proc(`C: File ${path} has been added`)   
         // const p = path.split(sep)
@@ -39,11 +40,31 @@ const C = (pubsock) => {
         //         path
         //     }]
         // }
-        // pubsock.send(['state', JSON.stringify(action)])        
+        // pubsock.send(['state', JSON.stringify(action)])    
+        if(firstRun){
+            log.log(`C: File ${path} has been restored`, DEBUG, component)
+            // pubsock.send(['state', JSON.stringify(action)])
+    
+            const name = path.split(sep).pop()
+            const format = name.split('.')[1]
+            const id = parseInt(name.split('.')[0])
+            const action = {
+                type: C_START,
+                video: [{
+                    id,
+                    name,
+                    format,
+                    path: paths.join(__dirname, ".." , ".." , path)
+                }]
+            }
+            // console.log(JSON.stringify(action.videos))
+            // log.log(`A: File ${path} has been changed`, DEBUG, component)   
+            pubsock.send(['state', JSON.stringify(action)])
+        }
     }
     
     const onChange = (path) => {
-        console.log(`C: File ${path} has been changed`)
+        log.log(`C: File ${path} has been changed`)
         // log(`C: File ${path} has been changed`)
         // proc(`C: File ${path} has been changed`)    
         const p = path.split(sep)
@@ -61,16 +82,23 @@ const C = (pubsock) => {
     }
     
     const onDelete = (path) => {
-        console.log(`C: File ${path} has been deleted`)   
+        log.log(`C: File ${path} has been deleted`)   
         // log(`C: File ${path} has been removed`)
         // proc(`C: File ${path} has been fucked`) 
     }
-    
-    watch.watch('./test/C',onAdd,onChange,onDelete, { ignored: /\S+\.(MD|js|gitignore)/ ,persistent: true })
-    
-    process.on('beforeExit', async () => {
-        await watch.close(() => console.log("EXITED"), ()  => console.log("FUCK"))
-    })
+
+    setTimeout(() => {
+        watch.watch('./test/C',onAdd,onChange,onDelete, { ignored: /\S+\.(MD|js|gitignore)/ })
+        
+        process.on('beforeExit', async () => {
+            await watch.close(() => console.log("EXITED"), ()  => console.log("FUCK"))
+        })
+
+        setTimeout(() => {
+            firstRun = false
+        }, firstRunTimer)
+
+    }, 2000)
 }
 
 module.exports = C;
