@@ -47,14 +47,18 @@ const C = (pubsock) => {
     
             const name = path.split(sep).pop()
             const format = name.split('.')[1]
-            const id = parseInt(name.split('.')[0])
+            const isImage = /jpg|png|bmp/.test(format)
+            const id = isImage ? parseInt(name.split('.')[0].split('_')[0]) : parseInt(name.split('.')[0])
+            const time = parseInt(name.split('.')[0].split('_')[1])
+            //TODO: Remove hardcoded time
             const action = {
                 type: C_START,
-                video: [{
+                content: [{
                     id,
                     name,
                     format,
-                    path: paths.join(__dirname, ".." , ".." , path)
+                    path: paths.join(__dirname, ".." , ".." , path),
+                    time: isImage ? time : null
                 }]
             }
             // console.log(JSON.stringify(action.videos))

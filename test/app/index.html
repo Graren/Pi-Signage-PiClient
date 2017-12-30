@@ -11,10 +11,16 @@
         <input id="input" type="text">
         <input id="name" type="text">       
         <input id="number" type="text">        
+        <input id="time" type="number">        
         <button id="button">Save file</button>
         <button id="delete">Delete</button>
         <button id="deleteAll">Delete all</button> 
-        <button id="playlist">Playlist</button>         
+        <button id="playlist">Playlist</button>
+        <select name="" id="select">
+            <option value="jpg">JPG</option>
+            <option value="png">PNG</option>    
+            <option value="mp4">MP4</option>                    
+        </select>      
     </div>
 </body>
 <script>
@@ -28,28 +34,31 @@
     const deleteButton= document.querySelector('#delete')
     const deleteAllButton= document.querySelector('#deleteAll')
     const playlistButton = document.querySelector('#playlist')
-
+    const select = document.querySelector('#select')
     const num = document.querySelector('#number')
+    const timeInput = document.querySelector('#time')
 
     const exampleSocket = new WebSocket("ws://localhost:8081");
     exampleSocket.onopen = function (event) {
         console.log("WS open"); 
     };
     exampleSocket.onmessage = function(data) { console.log(data)}
-
+    
     button.onclick = () => {
         const val = input.value
         const name = nameInput.value
-        const aName = name.split('.')[0]
-        const format = name.split('.')[1]
+        const aName = name
+        const format = select.value
         const number = parseInt(num.value) || 1
         const msgs = []
+        const time = timeInput.value
 
         for(i = 0 ; i < number; i++){
             const data = {
                 url: val,
                 id: parseInt(aName) + i,
-                format
+                format,
+                time
             }
             const msg = {
                 action: ADD,
@@ -57,6 +66,7 @@
             }
             msgs.push(msg)
         }
+        console.log(msgs)
         msgs.map(msg => {
             exampleSocket.send(JSON.stringify(msg))        
         })
@@ -65,8 +75,8 @@
     deleteButton.onclick = () => {
         const val = input.value
         const name = nameInput.value
-        const aName = name.split('.')[0]
-        const format = name.split('.')[1]
+        const aName = name
+        const format = select.value
         const number = parseInt(num.value) || 1
         const msgs = []
 
@@ -95,10 +105,11 @@
     playlistButton.onclick = () => {
         const val = input.value
         const name = nameInput.value
-        const aName = name.split('.')[0]
-        const format = name.split('.')[1]
+        const aName = name
+        const format = select.value
         const number = parseInt(num.value) || 1
         const playlist = []
+        const time = timeInput.value
 
         for(i = 0 ; i < number; i++){
             const data = {

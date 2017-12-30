@@ -43,7 +43,7 @@ const a_saga = async(action, dispatch, root) => {
             state = dispatch(action);
             (async (state, dispatch) => {
                 const mutableState = Object.assign({},state)
-                const vid = mutableState.a.videos.filter((video) => video.id === action.id)
+                const vid = mutableState.a.content.filter((c) => c.id === action.id)
                 if(vid.length > 0){
                     const res = await deleteFile(vid[0].path)
                     if(res.error){
@@ -80,8 +80,8 @@ const a_saga = async(action, dispatch, root) => {
             state = dispatch({ type: 'Filler' });
             (async (state, dispatch, root) => {
                 const mutableState = Object.assign({},state)
-                const vidPromises = mutableState.a.videos.map((video) => {
-                    return deleteFile(video.path)
+                const vidPromises = mutableState.a.content.map((c) => {
+                    return deleteFile(c.path)
                 })
                 const res = await Promise.all(vidPromises).catch(e => ({ error: e.error }))
                 if (res.error) {
@@ -128,13 +128,10 @@ const a_saga = async(action, dispatch, root) => {
         case B_NEW_PLAYLIST:
             action2 = Object.assign({},action, { type: C_DELETE_PLAYLIST })
             root(action2, dispatch)
-            action.playlist.map(video => {
+            action.playlist.map(c => {
                 const action2 = {
                     type: C_FETCH,
-                    url: video.url,
-                    name: video.name,
-                    format: video.format,
-                    id: video.id
+                    ... c
                 }
                 root(action2, dispatch)
             })
@@ -148,10 +145,16 @@ const a_saga = async(action, dispatch, root) => {
     let result
     let state
     let mutableState
+    let isImage
+    let name
     switch(action.type){
         case C_FETCH:
             dispatch(action)
-            a = await download(action.url, action.name, action.format).catch(e => ({ error: e.error }))
+            isImage = /jpg|png|bmp/.test(action.format) ? true : false
+            name = isImage? 
+                action.id + "_" + action.time + "." + action.format : 
+                action.id + '.' + action.format
+            a = await download(action.url, name.split('.')[0], action.format).catch(e => ({ error: e.error }))
             if(a.error) {
                 result = {
                     type: C_FAILURE,
@@ -161,11 +164,12 @@ const a_saga = async(action, dispatch, root) => {
             else{
                 result = {
                     type: C_SUCCESS,
-                    videos: [{
+                    content: [{
                         id: action.id,
-                        name: action.name + '.' + action.format,
+                        name,
                         format: action.format,
-                        path: a.data
+                        path: a.data,
+                        time: isImage ? action.time : null
                     }]
                 }
             }
@@ -183,7 +187,7 @@ const a_saga = async(action, dispatch, root) => {
             
             ((state, dispatch, root) => {
                 const mutableState = Object.assign({},state)
-                const vid = mutableState.c.videos.filter((video) => video.id === action.id)
+                const vid = mutableState.c.content.filter((c) => c.id === action.id)
                 if(vid.length > 0){
                     const res = deleteFile(vid[0].path).catch(e => ({ error: e.error }))
                     if(res.error){
@@ -216,8 +220,8 @@ const a_saga = async(action, dispatch, root) => {
             state = dispatch({ type: 'Filler' });
             (async (state, dispatch, root) => {
                 const mutableState = Object.assign({},state)
-                const vidPromises = mutableState.c.videos.map((video) => {
-                    return deleteFile(video.path)
+                const vidPromises = mutableState.c.content.map((c) => {
+                    return deleteFile(c.path)
                 })
                 const res = await Promise.all(vidPromises)
                 if (res.error){

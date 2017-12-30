@@ -32,25 +32,19 @@ bindDispatcher().then(({pubsock, subsock}) => {
           case ADD:
               state_action = {
                 type: B_FETCH,
-                id: payload.id,
-                url: payload.url,
-                name: payload.id,
-                format: payload.format || '.jpg'
+                ...payload
             }
             break;
           case CHANGE_PLAYLIST:
             const { playlist } = payload  
-            const videos = playlist.map(video => {
+            const content = playlist.map(c => {
               return {
-                id: video.id,
-                url: video.url,
-                name: video.id,
-                format: video.format || '.jpg'
+                ...c
               }
             })
             state_action = {
                 type: B_NEW_PLAYLIST,
-                playlist: videos
+                playlist: content
             }
             break;
           case DELETE_PLAYLIST:

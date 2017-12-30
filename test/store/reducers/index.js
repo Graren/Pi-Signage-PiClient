@@ -22,22 +22,23 @@ const {
     C_START
 } = require('../actions')
 
+const download = require('./../downloader/index');
+
 const initial_state_a = {
-    videos: [],
+    content: [],
     syncing: false,
     error: null
 }
 
-const download = require('./../downloader/index');
 
 const initial_state_b = {
-    videos: [],
+    content: [],
     syncing: false,
     error: null
 }
 
 const initial_state_c = {
-    videos: [],
+    content: [],
     syncing: false,
     error: null
 }
@@ -54,9 +55,9 @@ const a_reducer = (action, state) => {
         case A_SUCCESS:
             return Object.assign({}, state, {
                 syncing: false,
-                videos: [
-                    ...state.videos,
-                    ...action.videos
+                content: [
+                    ...state.content,
+                    ...action.content
                 ]
             })
             break
@@ -71,14 +72,14 @@ const a_reducer = (action, state) => {
             })
             break
         case A_DELETE_SUCCESS:
-            v = state.videos.filter((video) => video.id !== action.id)
+            v = state.content.filter((c) => c.id !== action.id)
             return Object.assign({}, state, {
-                videos: v
+                content: v
             })
             break
         case A_DELETE_PLAYLIST:
             return Object.assign({}, state, {
-                videos: []
+                content: []
             })
             break
         default:
@@ -98,9 +99,9 @@ const a_reducer = (action, state) => {
         case B_SUCCESS:
             return Object.assign({}, state, {
                 syncing: false,
-                videos: [
-                    ...state.videos,
-                    ...action.videos
+                content: [
+                    ...state.content,
+                    ...action.content
                 ]
             })
             break
@@ -126,9 +127,9 @@ const a_reducer = (action, state) => {
         case C_SUCCESS:
             return Object.assign({}, state, {
                 syncing: false,
-                videos: [
-                    ...state.videos,
-                    ...action.videos
+                content: [
+                    ...state.content,
+                    ...action.content
                 ]
             })
             break
@@ -148,21 +149,21 @@ const a_reducer = (action, state) => {
             })
             break;
         case C_DELETE_SUCCESS:
-            v = state.videos.filter((video) => video.id !== action.id)
+            v = state.content.filter((c) => c.id !== action.id)
             return Object.assign({}, state, {
-                videos: v
+                content: v
             })
             break;
         case C_DELETE_PLAYLIST:
             return Object.assign({}, state, {
-                videos: []
+                content: []
             })
             break
         case C_START:
             return Object.assign({}, state, {
-                videos: [
-                    ...state.videos,
-                    ...action.video
+                content: [
+                    ...state.content,
+                    ...action.content
                 ]
             })
         default:

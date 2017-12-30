@@ -30,7 +30,12 @@ wss.on('connection', function connection(ws, req) {
     // log.log(message,DEBUG, "idk")
     pubsock.send(['websocket', message])
   });
+  ws.on('error', () => {
+    console.log("hey")
+  })
 });
+
+
 
 server.listen(8081, function listening() {
   console.log('Listening on %d', server.address().port);
