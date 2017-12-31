@@ -9,26 +9,31 @@ const path = require('path')
 const WebSocket = require('ws');
 let attempts = 0
 
+const deviceGroupId = 1
 
-initialize = (attempts) => {
+initialize = async (attempts) => {
     try{
         //TODO REPLACE WITH DJANGO URL
         pubsock.bindSync('tcp://127.0.0.1:' + wsPort);
-        const ws = new WebSocket('ws://somewhereaaaa:8080');
-        
-        ws.on('open', function open() {
-          console.log("Opened")
-        });
-        
-        ws.on('error', (e) => {throw e})
-        
-        ws.on('message', function incoming(message) {
-          pubsock.send(['websocket', message])
+        const websocket =  await new Promise((resolve, reject) => {
+            const ws = new WebSocket('ws://localhost:8000');
+            ws.on('open', function open() {
+              console.log("Opened")
+              resolve(ws)
+            });
+            ws.on('error', (e) => reject({error:e}))
+        })
+        websocket.on('message', function incoming(message) {
+            const act = JSON.parse(message)
+            if (act.deviceGroupId !== deviceGroupId){
+                return
+            }
+            pubsock.send(['websocket', message])
         });
     }
     catch(e) {
         console.log(e)
-        throw {error: e, attempts: attempts+1}
+        console.log("dang")
     }
 }
 

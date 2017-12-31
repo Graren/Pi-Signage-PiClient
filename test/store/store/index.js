@@ -29,9 +29,9 @@ const createStore= (rootReducer, publisher) => {
     _state.state = state
     _state.rootReducer = rootReducer
     _state.rootSaga = rootSaga
-    _state.interval = setInterval(() => {
-        writeState(_state.state)
-    }, 30000)
+    // _state.interval = setInterval(() => {
+    //     writeState(_state.state)
+    // }, 30000)
 }
 
 const getState = () => {
