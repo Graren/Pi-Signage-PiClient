@@ -18,7 +18,7 @@ const expressStatusMonitor = require('express-status-monitor');
 const socketIO = require('socket.io');
 const scripts = require('./scripts');
 const configPaths = require('./app/configPaths');
-
+const fs = require('fs');
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
  */
@@ -30,65 +30,141 @@ dotenv.load({ path: '.env.example' });
 
 const app = express();
 const server = require('http').createServer(app);
+
 const io = socketIO(server);
 app.io = io;
+
+const startWifiMode = () => {
+  require('child_process').spawn('sh', [path.join(configPaths.appFolder, 'start_wifi_client.sh')], {
+    stdio: 'inherit'
+  });
+};
+
+const startApMode = () => {
+  require('child_process').spawn('sh', [path.join(configPaths.appFolder, 'start_wifi_ap.sh')], {
+    stdio: 'inherit'
+  });
+};
+
+const readToken = () =>
+  new Promise((resolve, reject) => {
+    fs.readFile(configPaths.tokenFile, 'utf8', (err, token) => {
+      if (err) {
+        reject(err);
+      }
+
+      resolve(token);
+    });
+  });
+
+const getDeviceInfo = () =>
+  readToken()
+    .then((token) => {
+      const headers = {
+        Authorization: `Bearer ${token}`
+      };
+      return fetch('http://192.168.1.114:8000/api/v1/dispositivo/info', { headers });
+    })
+    .then(res => res.json());
+
+const initApp = () => {
+  readToken()
+    .then((token) => {
+      if (!token) {
+        throw new Error('No token');
+      }
+      startWifiMode();
+      return new Promise(resolve => setTimeout(resolve, 15000));
+    })
+    .then(() => getDeviceInfo())
+    .then(() => {
+      io.emit('location', { location: 'signage' });
+    })
+    .catch(() => {
+      startApMode();
+      io.emit('location', { location: 'init' });
+    });
+};
+
+const initSignage = () => {
+  io.emit('location', { location: 'signage' });
+};
 
 io.on('connection', (socket) => {
   let clientConnectedToAP = false;
   const listenClientsInterval = setInterval(() => {
-    scripts.getApClientsList()
+    scripts
+      .getApClientsList()
       .then((clientsList) => {
         if (!clientConnectedToAP && clientsList.length > 0) {
-		  clientConnectedToAP = true;
-		  socket.emit('init-event', { section: 'init-create-screen', data: {} });	
+          clientConnectedToAP = true;
+          socket.emit('init-event', {
+            section: 'init-create-screen',
+            data: {}
+          });
         }
       })
       .catch((err) => {
-	    if (clientConnectedToAP) {
-		  socket.emit('location', { location: 'init' });	
-		  clientConnectedToAP = false;
-	    }
+        if (clientConnectedToAP) {
+          socket.emit('location', { location: 'init' });
+          clientConnectedToAP = false;
+        }
       });
   }, 2000);
-  
-socket.on('connect-wifi', () => {
-  let connectTimeout, checkInternetInterval;
-  require('child_process').spawn('sh', [path.join(configPaths.appFolder, 'start_wifi_client.sh')], { stdio: 'inherit' });
-  let hasInternet = false;
-  connectTimeout = setTimeout(() => {
-    if(!hasInternet) {
-      require('child_process').spawn('sh', [path.join(configPaths.appFolder, 'start_wifi_ap.sh')], { stdio: 'inherit' });
-    }
-    clearInterval(checkInternetInterval);
-    console.log('definitivamente no ha internet');
-  }, 30000);
-  checkInternetInterval = setInterval(() => {
-    fetch('http://doihaveinternet.com')
-      .then(res => {
-         clearInterval(checkInternetInterval);
-         clearTimeout(connectTimeout);
-         console.log('yes');
-       })
-       .catch(() => {
-          console.log('no');
-       });
-  }, 6000);
-});
+
+  socket.on('connect-wifi', () => {
+    let connectTimeout = null;
+    let checkInternetInterval = null;
+    const hasInternet = false;
+    clientConnectedToAP = false;
+
+    startWifiMode();
+    readToken()
+      .then((token) => {
+        connectTimeout = setTimeout(() => {
+          if (!hasInternet) {
+            startApMode();
+          }
+          clearInterval(checkInternetInterval);
+          console.log('definitivamente no hay internet');
+        }, 30000);
+        checkInternetInterval = setInterval(() => {
+          const opts = {
+            method: 'post',
+            body: JSON.stringify({ token })
+          };
+          fetch('http://192.168.1.114:8000/api/v1/dispositivo/activar/', opts)
+            .then((res) => {
+              if (res.status === 200) {
+                clearInterval(checkInternetInterval);
+                clearTimeout(connectTimeout);
+                initSignage();
+              } else {
+                console.log('no');
+              }
+            })
+            .catch(() => {
+              console.log('no');
+            });
+        }, 6000);
+      })
+      .catch(console.log);
+  });
 });
 
 const zmq = require('zeromq');
-const subsock = zmq.socket('sub')
-const { wbPort } = require('./test/config/constants')
 
-subsock.connect('tcp://127.0.0.1:'+ wbPort);
+const subsock = zmq.socket('sub');
+const { wbPort } = require('./test/config/constants');
+
+subsock.connect(`tcp://127.0.0.1:${wbPort}`);
 subsock.subscribe('client');
 
-subsock.on('message', function(topic, message) {
-  const state = JSON.parse(message)
-  console.log(JSON.stringify(state))
-  io.emit('current-state', state)
+subsock.on('message', (topic, message) => {
+  const state = JSON.parse(message);
+  console.log(JSON.stringify(state));
+  io.emit('current-state', state);
 });
-
 
 /**
  * Express configuration.
@@ -99,11 +175,13 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.use(expressStatusMonitor());
 app.use(compression());
-app.use(sass({
-  debug: true,
-  src: path.join(__dirname, 'stylesheets'),
-  dest: path.join(__dirname, 'public')
-}));
+app.use(
+  sass({
+    debug: true,
+    src: path.join(__dirname, 'stylesheets'),
+    dest: path.join(__dirname, 'public')
+  })
+);
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -146,6 +224,12 @@ app.use(errorHandler());
  * Start Express server.
  */
 server.listen(app.get('port'), app.get('host'), () => {
-  console.log('%s App is running at http://localhost:%d in %s mode', chalk.green('✓'), app.get('port'), app.get('env'));
+  console.log(
+    '%s App is running at http://localhost:%d in %s mode',
+    chalk.green('✓'),
+    app.get('port'),
+    app.get('env')
+  );
   console.log('  Press CTRL-C to stop\n');
+  initApp();
 });
