@@ -11,6 +11,7 @@ const {
     B_NEW_VIDEO,
     B_DELETE_VIDEO,
     B_DELETE_PLAYLIST,
+    B_COMPARE_PLAYLIST,
     C_FETCH,
     C_SUCCESS,
     C_FAILURE,
@@ -110,6 +111,14 @@ const a_reducer = (action, state) => {
                 error: action.error
             })
             break
+        case B_COMPARE_PLAYLIST:
+            return Object.assign({}, state, {
+                syncing: false,
+                content: [
+                    ...state.content,
+                    ...action.content
+                ]
+            })
         default:
             return state
             break

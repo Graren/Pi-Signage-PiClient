@@ -13,6 +13,7 @@ const DELETE = 'DELETE'
 const ADD = 'ADD'
 const CHANGE_PLAYLIST = 'CHANGE_PLAYLIST'
 const DELETE_PLAYLIST = 'DELETE_PLAYLIST'
+const COMPARE_PLAYLIST = 'COMPARE_PLAYLIST'
 
 module.exports = {
     wsPort: websocketPublisherPort,
@@ -23,5 +24,6 @@ module.exports = {
     DELETE,
     ADD,
     CHANGE_PLAYLIST,
-    DELETE_PLAYLIST
+    DELETE_PLAYLIST,
+    COMPARE_PLAYLIST
 }

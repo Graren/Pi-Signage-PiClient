@@ -5,11 +5,43 @@ const { wsPort } = require('./test/config/constants')
 const zmq = require('zeromq')
 const pubsock = zmq.socket('pub')
 const path = require('path')
+const configPaths = require('./app/configPaths');
+const fs = require('fs');
 
 const WebSocket = require('ws');
 let attempts = 0
 
 const deviceGroupId = 1
+
+
+const readToken = () =>
+    new Promise((resolve, reject) => {
+        fs.readFile(configPaths.tokenFile, 'utf8', (err, token) => {
+            if (err) {
+                reject({ error: err, token: 'test' });
+            }
+
+            resolve(token);
+        });
+    });
+
+const getDeviceInfo = () =>
+    readToken()
+        .then((token) => {
+            const headers = {
+            Authorization: `Bearer ${token}`
+            };
+            const host = process.env.REMOTE_SIGNAGE_SERVER || 'localhost:8000'
+            return fetch(`http://${host}/api/v1/dispositivo/info`, { headers });
+        })
+        .then(res => res.json())
+        .catch(({error, token}) => {
+            return Promise.resolve({
+                deviceId: 1,
+                deviceGroupId: 1
+            })
+        })
+
 
 initialize = async (attempts) => {
     try{
@@ -30,6 +62,10 @@ initialize = async (attempts) => {
             }
             pubsock.send(['websocket', message])
         });
+        getDeviceInfo().then(data => {
+            console.log(data)
+            websocket.send(JSON.stringify({ type: 'REQUEST_CONTENT', deviceGroupId: data.deviceGroupId}))
+        })
     }
     catch(e) {
         console.log(e)

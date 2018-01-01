@@ -1,7 +1,7 @@
 const { spawn, execFile } = require('child_process')
 const randomstring = require('randomstring');
 const path = require('path')
-const { wsPort, ADD, DELETE, CHANGE_PLAYLIST, DELETE_PLAYLIST } = require('./config/constants');
+const { wsPort, ADD, DELETE, COMPARE_PLAYLIST, CHANGE_PLAYLIST, DELETE_PLAYLIST } = require('./config/constants');
 const { bindDispatcher } = require('./dispatcher')
 const { B_FETCH, B_FAILURE, B_SUCCESS, B_NEW_PLAYLIST, B_DELETE_PLAYLIST, B_DELETE_VIDEO } = require('./store/actions/index')
 
@@ -16,8 +16,8 @@ var pubsock = null;
 
 //this is test code
 bindDispatcher().then(({pubsock, subsock}) => {
-    A(pubsock);
-    C(pubsock);
+    A(pubsock)
+    C(pubsock)
     pubsock = pubsock
     
     const handle = ({action, payload}) => {
@@ -50,6 +50,16 @@ bindDispatcher().then(({pubsock, subsock}) => {
           case DELETE_PLAYLIST:
             state_action = {
               type: B_DELETE_PLAYLIST
+            }
+            break;
+          case COMPARE_PLAYLIST:
+            state_action = {
+              type: B_COMPARE_PLAYLIST,
+              content: payload.playlist.map(p =>{
+                return {
+                  ...p
+                }
+              })
             }
             break;
           default:
