@@ -7,11 +7,15 @@ const pubsock = zmq.socket('pub')
 const path = require('path')
 const configPaths = require('./app/configPaths');
 const fs = require('fs');
+const fetch = require('node-fetch');
 
 const WebSocket = require('ws');
 let attempts = 0
 
-const deviceGroupId = 1
+const device = {
+    id: null,
+    deviceGroupId: null
+}
 
 
 const readToken = () =>
@@ -29,18 +33,18 @@ const getDeviceInfo = () =>
     readToken()
         .then((token) => {
             const headers = {
-            Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${token.trim()}`
             };
-            const host = process.env.REMOTE_SIGNAGE_SERVER || 'localhost:8000'
+            const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.1.104:8000'
             return fetch(`http://${host}/api/v1/dispositivo/info`, { headers });
         })
-        .then(res => res.json())
-        .catch(({error, token}) => {
-            return Promise.resolve({
-                deviceId: 1,
-                deviceGroupId: 1
-            })
+        .then(res =>{
+            return  res.json()
         })
+        .catch(e => {
+            console.log(e)
+        })
+
 
 
 initialize = async (attempts) => {
@@ -48,24 +52,50 @@ initialize = async (attempts) => {
         //TODO REPLACE WITH DJANGO URL
         pubsock.bindSync('tcp://127.0.0.1:' + wsPort);
         const websocket =  await new Promise((resolve, reject) => {
-            const ws = new WebSocket('ws://localhost:8000');
-            ws.on('open', function open() {
-              console.log("Opened")
-              resolve(ws)
-            });
-            ws.on('error', (e) => reject({error:e}))
+            try{
+                const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.1.104:8000'
+                const ws = new WebSocket('ws://'+host);
+                ws.on('open', function open() {
+                    console.log("Opened")
+                    resolve(ws)
+                });
+                ws.on('error', (e) => reject({error:e}))
+            }
+            catch(e) {
+                console.log(e)
+            }
         })
         websocket.on('message', function incoming(message) {
             const act = JSON.parse(message)
-            if (act.deviceGroupId !== deviceGroupId){
-                return
+            console.log(act)
+            console.log(device)
+            if (act.deviceGroupId === device.deviceGroupId || act.deviceId === device.id){
+                // pubsock.send(['websocket', message])
+                const { request } = act
+                switch(request){
+                    case 'REQUEST_GROUP':
+                        console.log("rg")
+                        websocket.send(JSON.stringify({ type: 'REQUEST_GROUP', deviceGroupId: grupo, id}))
+                        
+                        break;
+                    case 'REQUEST_CONTENT':
+                        console.log(rq)
+                        break;
+                    default:
+                    console.log("default")
+                        // pubsock.send(['websocket', message])
+                        
+                }
             }
-            pubsock.send(['websocket', message])
         });
         getDeviceInfo().then(data => {
-            console.log(data)
-            websocket.send(JSON.stringify({ type: 'REQUEST_CONTENT', deviceGroupId: data.deviceGroupId}))
-        })
+            //id, grupo
+            const { grupo, id } = data
+            device.deviceGroupId = grupo
+            device.id = id
+            console.log("Sending request")
+            websocket.send(JSON.stringify({ type: 'REQUEST_GROUP', deviceGroupId: grupo, id}))
+        }).catch(e => console.log(e))
     }
     catch(e) {
         console.log(e)
