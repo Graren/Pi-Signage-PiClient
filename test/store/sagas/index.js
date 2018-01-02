@@ -139,8 +139,8 @@ const b_saga = async(action, dispatch, root) => {
             break
         case B_COMPARE_PLAYLIST:
             result = dispatch(action)
-            helper = result.b.map(video => {
-                if (result.a.filter(e => e.id === video.id).length > 0) {
+            helper = result.b.content.map(video => {
+                if (result.a.content.filter(e => e.id === video.id).length > 0) {
                     return
                 } else {
                     return {
@@ -149,8 +149,8 @@ const b_saga = async(action, dispatch, root) => {
                     }
                 }
             })
-            helper_2 = results.a.map(video => {
-                if (result.b.filter(e => e.id === video.id).length > 0) {
+            helper_2 = result.a.content.map(video => {
+                if (result.b.content.filter(e => e.id === video.id).length > 0) {
                     return
                 } else {
                     return {

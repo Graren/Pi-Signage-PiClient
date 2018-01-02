@@ -65,24 +65,42 @@ const C = (pubsock) => {
             // log.log(`A: File ${path} has been changed`, DEBUG, component)   
             pubsock.send(['state', JSON.stringify(action)])
         }
+        else{
+            //COMMENT IF AWAIT WRITE FINNISH DOES NOT WORK
+            const p = path.split(sep)
+            const sliced = p.slice(2)
+            const actualPath = paths.join(folder, destination, ...sliced)
+            const rd = fs.createReadStream(path);
+            rd.on("error", function(err) {
+                log.log(`An error happened reading ${err.toString()}`, ERROR, component)
+            });
+            const wr = fs.createWriteStream(actualPath);
+            wr.on("error", function(err) {
+                log.log(`An error happened writing${err.toString()}`, ERROR, component)
+            });
+            rd.pipe(wr);
+        }
     }
     
     const onChange = (path) => {
         log.log(`C: File ${path} has been changed`)
         // log(`C: File ${path} has been changed`)
-        // proc(`C: File ${path} has been changed`)    
-        const p = path.split(sep)
-        const sliced = p.slice(2)
-        const actualPath = paths.join(folder, destination, ...sliced)
-        const rd = fs.createReadStream(path);
-        rd.on("error", function(err) {
-            log.log(`An error happened reading ${err.toString()}`, ERROR, component)
-        });
-        const wr = fs.createWriteStream(actualPath);
-        wr.on("error", function(err) {
-            log.log(`An error happened writing${err.toString()}`, ERROR, component)
-        });
-        rd.pipe(wr);
+        // proc(`C: File ${path} has been changed`)   
+
+        //UNCOMMENT IF AWAIT WRITE FINNISH  DOES NOT WORK 
+        
+        // const p = path.split(sep)
+        // const sliced = p.slice(2)
+        // const actualPath = paths.join(folder, destination, ...sliced)
+        // const rd = fs.createReadStream(path);
+        // rd.on("error", function(err) {
+        //     log.log(`An error happened reading ${err.toString()}`, ERROR, component)
+        // });
+        // const wr = fs.createWriteStream(actualPath);
+        // wr.on("error", function(err) {
+        //     log.log(`An error happened writing${err.toString()}`, ERROR, component)
+        // });
+        // rd.pipe(wr);
     }
     
     const onDelete = (path) => {
@@ -92,7 +110,14 @@ const C = (pubsock) => {
     }
 
     setTimeout(() => {
-        watch.watch('./test/C',onAdd,onChange,onDelete, { ignored: /\S+\.(MD|js|gitignore)/ })
+        //COMMENT AWAIT WRITE FINNISH IF IT DOES NOT WORK
+        watch.watch('./test/C',onAdd,onChange,onDelete, { ignored: /\S+\.(MD|js|gitignore)/ ,   interval: 1000,
+            binaryInterval: 1000,
+            awaitWriteFinish: {
+                stabilityThreshold: 10000,
+                pollInterval: 100
+            }
+        })
         
         process.on('beforeExit', async () => {
             await watch.close(() => console.log("EXITED"), ()  => console.log("FUCK"))

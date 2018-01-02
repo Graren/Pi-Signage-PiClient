@@ -3,7 +3,7 @@ const randomstring = require('randomstring');
 const path = require('path')
 const { wsPort, ADD, DELETE, COMPARE_PLAYLIST, CHANGE_PLAYLIST, DELETE_PLAYLIST } = require('./config/constants');
 const { bindDispatcher } = require('./dispatcher')
-const { B_FETCH, B_FAILURE, B_SUCCESS, B_NEW_PLAYLIST, B_DELETE_PLAYLIST, B_DELETE_VIDEO } = require('./store/actions/index')
+const { B_FETCH, B_FAILURE, B_COMPARE_PLAYLIST, B_SUCCESS, B_NEW_PLAYLIST, B_DELETE_PLAYLIST, B_DELETE_VIDEO } = require('./store/actions/index')
 
 const dirs = [ 'A', 'C'];
 const children = [];

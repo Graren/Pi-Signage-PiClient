@@ -3,6 +3,7 @@ var chokidar = require('chokidar');
 const state = {};
 
 const w = (dir = '.', config = { ignored: /node_modules\// ,persistent: true }) => {
+    console.log(config)
     return chokidar.watch(dir, config);
 }
 
