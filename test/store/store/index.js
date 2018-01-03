@@ -1,6 +1,7 @@
 const { a_saga, b_saga, c_saga, combineSagas } = require('../sagas/index');
 const fs = require('fs');
 const path = require('path')
+const { RESTART } = require('./../actions')
 
 const writeState = (state) => {
     fs.writeFile(path.join(__dirname, 'state.json'), JSON.stringify(state), function(err) {
@@ -29,9 +30,9 @@ const createStore= (rootReducer, publisher) => {
     _state.state = state
     _state.rootReducer = rootReducer
     _state.rootSaga = rootSaga
-    // _state.interval = setInterval(() => {
-    //     writeState(_state.state)
-    // }, 30000)
+    _state.interval = setInterval(() => {
+        writeState(_state.state)
+    }, 60000)
 }
 
 const getState = () => {
@@ -42,7 +43,10 @@ const getState = () => {
 const dispatch = ( action ) => {
     const state = _state.rootReducer(action, _state.state)
     _state.state = state
-    console.log(JSON.stringify(state))
+    if(action.type === RESTART){
+        _state.state = Object.assign({},action.state)   
+    }
+    console.log(JSON.stringify(_state.state))
     _state.pub.send(['client', JSON.stringify(state)])
     return _state.state
 }

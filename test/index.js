@@ -3,7 +3,7 @@ const randomstring = require('randomstring');
 const path = require('path')
 const { wsPort, ADD, DELETE, COMPARE_PLAYLIST, CHANGE_PLAYLIST, DELETE_PLAYLIST } = require('./config/constants');
 const { bindDispatcher } = require('./dispatcher')
-const { B_FETCH, B_FAILURE, B_COMPARE_PLAYLIST, B_SUCCESS, B_NEW_PLAYLIST, B_DELETE_PLAYLIST, B_DELETE_VIDEO } = require('./store/actions/index')
+const { B_FETCH, B_FAILURE, RESTART, B_RESTART, B_THROW, B_COMPARE_PLAYLIST, B_SUCCESS, B_NEW_PLAYLIST, B_DELETE_PLAYLIST, B_DELETE_VIDEO } = require('./store/actions/index')
 
 const dirs = [ 'A', 'C'];
 const children = [];
@@ -15,11 +15,20 @@ const C = require('./C');
 var pubsock = null;
 
 //this is test code
-bindDispatcher().then(({pubsock, subsock}) => {
+bindDispatcher().then(({pubsock, subsock, stsock}) => {
     A(pubsock)
     C(pubsock)
     pubsock = pubsock
-    
+    stsock.on('message', (topic, message) => {
+      const action = {
+        type: RESTART
+      }
+      pubsock.send(['state', JSON.stringify(action)])      
+    })
+    const ac = {
+      type: B_RESTART
+    }
+    pubsock.send(['state', JSON.stringify(ac)])
     const handle = ({action, payload}) => {
       let state_action;
       switch(action){
@@ -62,10 +71,11 @@ bindDispatcher().then(({pubsock, subsock}) => {
               })
             }
             break;
-          case 'THROW':
+          case B_THROW:
             state_action = {
-              type: 'THROW'
+              type: B_THROW
             }
+            break;
           default:
             state_action = {}
             break;
@@ -77,6 +87,9 @@ bindDispatcher().then(({pubsock, subsock}) => {
       //Los mensajes llegan en ascii, si tal hacerles toString()
       const msg = JSON.parse(message)
       const action = handle(msg)
+      if(action.type === B_THROW){
+        throw new Error("HEY")
+      }
       log.log(JSON.stringify(action), DEBUG, 'Websocket subscriber message handler')
       pubsock.send(['state', JSON.stringify(action)])
     });

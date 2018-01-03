@@ -16,8 +16,15 @@ dispatcherStoreSock.bindSync('tcp://127.0.0.1:' + stSock)
 
 console.log('Subscriber for state connected to port '+ stPort);
 console.log('Publisher for state on port ' + wbPort)
+console.log('Publisher for startup on port' + stSock)
+
+const time = setTimeout(()=> {
+    dispatcherStoreSock.send(['startup', { start: true }]);
+},20000)
+
 subsock.on('message', function(topic, message) {
     const action = JSON.parse(message)
+    clearTimeout(time)
     sagaDispatch(action)
 });
 
@@ -29,4 +36,3 @@ const rootReducer = combineReducers({
 
 createStore(rootReducer, clientsock);
 
-dispatcherStoreSock.send(['startup', { start: true }]);

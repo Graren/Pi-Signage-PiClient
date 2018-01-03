@@ -21,11 +21,26 @@ const {
     A_DELETE_PLAYLIST,
     C_DELETE_PLAYLIST,
     C_START,
-    B_COMPARE_PLAYLIST
+    B_COMPARE_PLAYLIST,
+    A_RESTART,
+    B_RESTART,
+    C_RESTART,
+    RESTART
 } = require('../actions')
+const fs = require('fs')
+const path = require('path')
 
 const download = require('./../downloader/index');
 const deleteFile = require('./../downloader/deleter');
+const readState = () => {
+    return new Promise((resolve, reject) => {
+        fs.readFile(path.join(__dirname, '..', 'store', 'state.json'), 'utf8', function (err, data) {
+            if (err)  reject(err)
+            const obj = JSON.parse(data);
+            resolve(obj)
+        });
+    })
+}
 
 const a_saga = async(action, dispatch, root) => {
     let state
@@ -39,7 +54,9 @@ const a_saga = async(action, dispatch, root) => {
         case A_FAILURE:
             dispatch(action)
             break
-
+        case A_RESTART:
+            dispatch(action)
+            break
         case A_DELETE:
             state = dispatch(action);
             (async(state, dispatch) => {
@@ -125,6 +142,28 @@ const b_saga = async(action, dispatch, root) => {
         case B_FAILURE:
             dispatch(action)
             break
+        case B_RESTART:
+            dispatch(action)
+            const actions = [
+                {
+                    type: A_RESTART
+                },
+                {
+                    type: C_RESTART
+                }
+            ]
+            actions.map(act => {
+                root(act, dispatch)
+            })
+            break
+        case RESTART:
+            const data = await readState()
+            const a = {
+                type: RESTART,
+                state: data
+            }
+            dispatch(a)
+            break;
         case B_DELETE_VIDEO:
             action2 = Object.assign({}, action, {
                 type: C_DELETE
@@ -176,6 +215,7 @@ const b_saga = async(action, dispatch, root) => {
                 }
                 root(action2, dispatch)
             })
+            break
         default:
             break;
     }
@@ -222,6 +262,9 @@ const c_saga = async(action, dispatch, root) => {
 
             break
         case C_FAILURE:
+            dispatch(action)
+            break
+        case C_RESTART:
             dispatch(action)
             break
         case C_DELETE:

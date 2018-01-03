@@ -11,9 +11,9 @@ const bindDispatcher = () => {
             pubsock.bindSync('tcp://127.0.0.1:' + stPort);
             subsock.connect('tcp://127.0.0.1:'+ wsPort);
             subsock.subscribe('websocket');
-            // stsock.connect('tcp://127.0.0.1:'+ stSock);
-            // stsock.subscribe('startup')
-            resolve({ pubsock, subsock})
+            stsock.connect('tcp://127.0.0.1:'+ stSock);
+            stsock.subscribe('startup')
+            resolve({ pubsock, subsock, stsock})
         }
         catch(e){
             reject(e)

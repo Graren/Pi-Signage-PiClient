@@ -35,7 +35,7 @@ const getDeviceInfo = () =>
             const headers = {
                 Authorization: `Bearer ${token.trim()}`
             };
-            const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.1.102:8000'
+            const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.1.104:8000'
             return fetch(`http://${host}/api/v1/dispositivo/info`, { headers });
         })
         .then(res =>{
@@ -50,7 +50,7 @@ initialize = async (attempts) => {
         pubsock.bindSync('tcp://127.0.0.1:' + wsPort);
         const websocket =  await new Promise((resolve, reject) => {
             try{
-                const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.1.102:8000'
+                const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.1.104:8000'
                 const ws = new WebSocket('ws://'+host);
                 ws.on('open', function open() {
                     console.log("Opened")
@@ -82,7 +82,6 @@ initialize = async (attempts) => {
                         pubsock.send(['websocket', JSON.stringify(msg)])
                         break;
                     default:
-                        console.log("default")
                         pubsock.send(['websocket', message])
                         
                 }

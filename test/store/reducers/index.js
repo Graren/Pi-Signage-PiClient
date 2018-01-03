@@ -20,7 +20,10 @@ const {
     C_DELETE_FAILURE,
     A_DELETE_PLAYLIST,
     C_DELETE_PLAYLIST,
-    C_START
+    C_START,
+    A_RESTART,
+    B_RESTART,
+    C_RESTART
 } = require('../actions')
 
 const download = require('./../downloader/index');
@@ -83,6 +86,9 @@ const a_reducer = (action, state) => {
                 content: []
             })
             break
+        case A_RESTART:
+            return Object.assign({}, state, initial_state_a)
+            break
         default:
             return state
             break
@@ -111,11 +117,13 @@ const a_reducer = (action, state) => {
                 error: action.error
             })
             break
+        case B_RESTART:
+            return Object.assign({}, state, initial_state_b)
+            break
         case B_COMPARE_PLAYLIST:
             return Object.assign({}, state, {
                 syncing: false,
                 content: [
-                    ...state.content,
                     ...action.content
                 ]
             })
@@ -152,6 +160,9 @@ const a_reducer = (action, state) => {
                 syncing: true
             })
             break;
+        case C_RESTART:
+            return Object.assign({}, state, initial_state_c)
+            break
         case C_DELETE_FAILURE:
             return Object.assign({}, state, {
                 error: action.error
