@@ -141,7 +141,7 @@ const b_saga = async(action, dispatch, root) => {
             result = dispatch(action)
             helper = result.b.content.map(video => {
                 if (result.a.content.filter(e => e.id === video.id).length > 0) {
-                    return
+                    return { type: "somerandomstringhaha"}
                 } else {
                     return {
                         type: C_FETCH,
@@ -151,7 +151,7 @@ const b_saga = async(action, dispatch, root) => {
             })
             helper_2 = result.a.content.map(video => {
                 if (result.b.content.filter(e => e.id === video.id).length > 0) {
-                    return
+                    return { type: "somerandomstringhaha"}
                 } else {
                     return {
                         type: C_DELETE,

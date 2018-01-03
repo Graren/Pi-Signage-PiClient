@@ -62,6 +62,10 @@ bindDispatcher().then(({pubsock, subsock}) => {
               })
             }
             break;
+          case 'THROW':
+            state_action = {
+              type: 'THROW'
+            }
           default:
             state_action = {}
             break;

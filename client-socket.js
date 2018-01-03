@@ -69,7 +69,6 @@ initialize = async (attempts) => {
                 // pubsock.send(['websocket', message])
                 switch(request.type){
                     case 'REQUEST_GROUP':
-                        console.log("rg")
                         if(response.success){
                             websocket.send(JSON.stringify({ type: 'REQUEST_CONTENT', id: device.id}))
                         }
@@ -80,9 +79,6 @@ initialize = async (attempts) => {
                             action: COMPARE_PLAYLIST,
                             payload: response
                         }
-                        console.log(msg)
-                        console.log(msg.action)
-                        console.log(msg.payload.playlist)
                         pubsock.send(['websocket', JSON.stringify(msg)])
                         break;
                     default:
