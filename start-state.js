@@ -52,6 +52,11 @@ store.on('exit', function() {
     console.error('store file has exited after '+store.max+' restarts');
 });
 
+store.on('error', () => {
+    console.log('Store errored')
+    process.kill(store.childData.pid);
+})
+
 logger.on('start', function() {
     console.log('logger index started for first time.');
 });

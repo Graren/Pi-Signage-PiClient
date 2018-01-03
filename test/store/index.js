@@ -2,15 +2,17 @@ const zmq = require('zeromq');
 const { a_reducer, b_reducer, c_reducer, combineReducers} = require('./reducers')
 const { createStore, dispatch, sagaDispatch } = require('./store');
 const { B_SUCCESS } = require('./actions') 
-const { stPort, wbPort } = require('../config/constants');
+const { stPort, wbPort, stSock } = require('../config/constants');
 
 const subsock = zmq.socket('sub');
 const clientsock = zmq.socket('pub');
+const dispatcherStoreSock = zmq.socket('pub');
 
 subsock.connect('tcp://127.0.0.1:'+ stPort);
 subsock.subscribe('state');
 
 clientsock.bindSync('tcp://127.0.0.1:' + wbPort)
+dispatcherStoreSock.bindSync('tcp://127.0.0.1:' + stSock)
 
 console.log('Subscriber for state connected to port '+ stPort);
 console.log('Publisher for state on port ' + wbPort)
@@ -25,4 +27,6 @@ const rootReducer = combineReducers({
     c: c_reducer
 })
 
-createStore(rootReducer, clientsock)
+createStore(rootReducer, clientsock);
+
+dispatcherStoreSock.send(['startup', { start: true }]);
