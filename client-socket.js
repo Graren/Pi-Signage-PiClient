@@ -10,19 +10,22 @@ const fs = require('fs');
 const fetch = require('node-fetch');
 
 const WebSocket = require('ws');
-let attempts = 0
 
 const device = {
     id: null,
-    deviceGroupId: null
+    deviceGroupId: null,
+    isAlive: false
 }
 
+//thirty seconds reconnection timeout
+
+const timeout = 30 * 1000;
 
 const readToken = () =>
     new Promise((resolve, reject) => {
         fs.readFile(configPaths.tokenFile, 'utf8', (err, token) => {
             if (err) {
-                reject({ error: err, token: 'test' });
+                reject({ error: err });
             }
 
             resolve(token);
@@ -42,25 +45,24 @@ const getDeviceInfo = () =>
             return  res.json()
         })
 
-
-
-initialize = async (attempts) => {
+        
+const initialize = async () => {
     try{
-        //TODO REPLACE WITH DJANGO URL
-        pubsock.bindSync('tcp://127.0.0.1:' + wsPort);
         const websocket =  await new Promise((resolve, reject) => {
-            try{
                 const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.1.104:8000'
                 const ws = new WebSocket('ws://'+host);
                 ws.on('open', function open() {
                     console.log("Opened")
+                    device.isAlive = true
                     resolve(ws)
                 });
-                ws.on('error', (e) => reject({error:e}))
-            }
-            catch(e) {
-                console.log(e)
-            }
+                ws.on('error', (e) => {
+                    console.log("Connection error")
+                })
+                ws.on('close', () => {
+                    console.log("Connection closed, reconnecting . . .")                    
+                    setTimeout(initialize, timeout);
+                })
         })
         websocket.on('message', function incoming(message) {
             const act = JSON.parse(message)
@@ -83,7 +85,6 @@ initialize = async (attempts) => {
                         break;
                     default:
                         pubsock.send(['websocket', message])
-                        
                 }
             }
         });
@@ -92,21 +93,21 @@ initialize = async (attempts) => {
             const { grupo, id } = data
             device.deviceGroupId = grupo
             device.id = id
-            console.log("Sending request")
+            console.log("Sending request for group data")
             websocket.send(JSON.stringify({ type: 'REQUEST_GROUP', deviceGroupId: grupo, id}))
         }).catch(e => console.log(e))
     }
     catch(e) {
         console.log(e)
-        console.log("dang")
     }
 }
 
 try{
-    initialize(attempts)
+    pubsock.bindSync('tcp://127.0.0.1:' + wsPort);
+    initialize()
 }
 catch(e){
-    console.log("welp")
+    console.log(e)
 }
 
 setInterval(() => {
