@@ -72,6 +72,7 @@ const getDeviceInfo = () =>
       const headers = {
         Authorization: `Bearer ${token}`
       }
+      console.log(headers)
       return fetch(`http://${host}/api/v1/dispositivo/info`, { headers })
     })
     .then(res => res.json())
