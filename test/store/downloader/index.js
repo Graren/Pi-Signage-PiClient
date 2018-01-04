@@ -8,12 +8,12 @@ const download = (fileUrl, name, format, cwd) => {
     const file = fs.createWriteStream(path.join(__dirname, '..', '..', 'C', 'static', `${name}.${format}`));
     var options = {
         host: url.parse(fileUrl).host,
-        port: 80,
         path: url.parse(fileUrl).pathname
     };
+    console.log(fileUrl)
 
     return new Promise((resolve, reject) => {
-        http.get(options, function(res) {
+        http.get(fileUrl, function(res) {
             res.on('data', function(data) {
                     file.write(data);
                 }).on('end', function() {
