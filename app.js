@@ -62,7 +62,7 @@ const readToken = () =>
         reject(err)
       }
 
-      resolve(token)
+      resolve(token.replace('\n', ''))
     })
   })
 
@@ -72,7 +72,6 @@ const getDeviceInfo = () =>
       const headers = {
         Authorization: `Bearer ${token}`
       }
-      console.log(headers)
       return fetch(`http://${host}/api/v1/dispositivo/info`, { headers })
     })
     .then(res => res.json())
