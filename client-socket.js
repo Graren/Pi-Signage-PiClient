@@ -28,7 +28,7 @@ const readToken = () =>
           reject({ error: err })
         }
 
-        resolve(token)
+        resolve(token.replace('\n', ''))
       })
     })
 
