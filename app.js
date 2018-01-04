@@ -89,7 +89,8 @@ const initApp = () => {
     .then(() => {
       io.emit('location', { location: 'signage' })
     })
-    .catch(() => {
+    .catch(e => {
+      console.log(e)
       startApMode()
       io.emit('location', { location: 'init' })
     })
