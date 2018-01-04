@@ -28,6 +28,7 @@ dotenv.load({ path: '.env.example' })
  * Create Express server.
  */
 
+const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.1.114:8000'
 const app = express()
 const server = require('http').createServer(app)
 
@@ -35,15 +36,23 @@ const io = socketIO(server)
 app.io = io
 
 const startWifiMode = () => {
-  require('child_process').spawn('sh', [path.join(configPaths.appFolder, 'start_wifi_client.sh')], {
-    stdio: 'inherit'
-  })
+  require('child_process').spawn(
+    'sh',
+    [path.join(configPaths.appFolder, 'start_wifi_client.sh')],
+    {
+      stdio: 'inherit'
+    }
+  )
 }
 
 const startApMode = () => {
-  require('child_process').spawn('sh', [path.join(configPaths.appFolder, 'start_wifi_ap.sh')], {
-    stdio: 'inherit'
-  })
+  require('child_process').spawn(
+    'sh',
+    [path.join(configPaths.appFolder, 'start_wifi_ap.sh')],
+    {
+      stdio: 'inherit'
+    }
+  )
 }
 
 const readToken = () =>
@@ -59,17 +68,17 @@ const readToken = () =>
 
 const getDeviceInfo = () =>
   readToken()
-    .then((token) => {
+    .then(token => {
       const headers = {
         Authorization: `Bearer ${token}`
       }
-      return fetch('http://192.168.1.114:8000/api/v1/dispositivo/info', { headers })
+      return fetch(`http://${host}/api/v1/dispositivo/info`, { headers })
     })
     .then(res => res.json())
 
 const initApp = () => {
   readToken()
-    .then((token) => {
+    .then(token => {
       if (!token) {
         throw new Error('No token')
       }
@@ -90,12 +99,12 @@ const initSignage = () => {
   io.emit('location', { location: 'signage' })
 }
 
-io.on('connection', (socket) => {
+io.on('connection', socket => {
   let clientConnectedToAP = false
   const listenClientsInterval = setInterval(() => {
     scripts
       .getApClientsList()
-      .then((clientsList) => {
+      .then(clientsList => {
         if (!clientConnectedToAP && clientsList.length > 0) {
           clientConnectedToAP = true
           socket.emit('init-event', {
@@ -104,7 +113,7 @@ io.on('connection', (socket) => {
           })
         }
       })
-      .catch((err) => {
+      .catch(err => {
         if (clientConnectedToAP) {
           socket.emit('location', { location: 'init' })
           clientConnectedToAP = false
@@ -120,7 +129,7 @@ io.on('connection', (socket) => {
 
     startWifiMode()
     readToken()
-      .then((token) => {
+      .then(token => {
         connectTimeout = setTimeout(() => {
           if (!hasInternet) {
             startApMode()
@@ -133,8 +142,8 @@ io.on('connection', (socket) => {
             method: 'post',
             body: JSON.stringify({ token })
           }
-          fetch('http://192.168.1.114:8000/api/v1/dispositivo/activar/', opts)
-            .then((res) => {
+          fetch(`http://${host}/api/v1/dispositivo/activar/`, opts)
+            .then(res => {
               if (res.status === 200) {
                 clearInterval(checkInternetInterval)
                 clearTimeout(connectTimeout)
@@ -162,7 +171,6 @@ subsock.subscribe('client')
 
 subsock.on('message', (topic, message) => {
   const state = JSON.parse(message)
-  console.log(JSON.stringify(state))
   io.emit('current-state', state)
 })
 

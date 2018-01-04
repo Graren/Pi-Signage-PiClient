@@ -1,8 +1,9 @@
 const zmq = require('zeromq')
-const pubsock = zmq.socket('pub')
-const subsock = zmq.socket('sub')
-const stsock = zmq.socket('sub')
-const { wsPort, stPort, logPort, stSock, levels } = require('../config/constants')
+const { wsPort, stPort, stSock, levels } = require('../config/constants')
+
+const pubsock = zmq.socket('pub') // statePublisher
+const subsock = zmq.socket('sub') // websocketSubscriber
+const stsock = zmq.socket('sub') // storeSockSubscriber
 const logger = require('./logger_proxy')
 
 const bindDispatcher = () => {
@@ -13,7 +14,7 @@ const bindDispatcher = () => {
       subsock.subscribe('websocket')
       stsock.connect('tcp://127.0.0.1:' + stSock)
       stsock.subscribe('startup')
-      resolve({ pubsock, subsock, stsock})
+      resolve({ pubsock, subsock, stsock })
     } catch (e) {
       reject(e)
     }
