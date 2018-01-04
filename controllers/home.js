@@ -5,5 +5,5 @@
 exports.index = (req, res) => {
   res.render('signage', {
     title: 'Home'
-  });
-};
+  })
+}

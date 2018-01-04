@@ -1,5 +1,5 @@
-const init = require('./init');
+const init = require('./init')
 
 module.exports = {
   init
-};
+}

@@ -1,5 +1,5 @@
-const getApClientsList = require('./getApClientsList');
+const getApClientsList = require('./getApClientsList')
 
 module.exports = {
   getApClientsList
-};
+}

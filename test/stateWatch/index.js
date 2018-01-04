@@ -1,23 +1,22 @@
-var chokidar = require('chokidar');
+var chokidar = require('chokidar')
 
-const state = {};
+const state = {}
 
-const w = (dir = '.', config = { ignored: /node_modules\// ,persistent: true }) => {
-    console.log(config)
-    return chokidar.watch(dir, config);
+const w = (dir = '.', config = { ignored: /node_modules\//, persistent: true }) => {
+  console.log(config)
+  return chokidar.watch(dir, config)
 }
-
 
 const watch = (dir, onAdd, onChange, onDelete, config) => {
-    state.watcher = w(dir, config);
-    state.watcher
+  state.watcher = w(dir, config)
+  state.watcher
     .on('add', onAdd)
     .on('change', onChange)
-    .on('unlink', onDelete);
+    .on('unlink', onDelete)
 }
 
-const close = (cb,err) => {
-    state.watcher.close()
+const close = (cb, err) => {
+  state.watcher.close()
     .then(cb)
     .catch(err)
 }
@@ -35,6 +34,6 @@ const close = (cb,err) => {
 // }
 
 module.exports = {
-    watch,
-    close
-};
+  watch,
+  close
+}

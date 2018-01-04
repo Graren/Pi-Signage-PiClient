@@ -1,4 +1,4 @@
-const { 
+const {
     A_FETCH,
     A_SUCCESS,
     A_FAILURE,
@@ -26,185 +26,184 @@ const {
     C_RESTART
 } = require('../actions')
 
-const download = require('./../downloader/index');
+const download = require('./../downloader/index')
 
 const initial_state_a = {
-    content: [],
-    syncing: false,
-    error: null
+  content: [],
+  syncing: false,
+  error: null
 }
 
-
 const initial_state_b = {
-    content: [],
-    syncing: false,
-    error: null
+  content: [],
+  syncing: false,
+  error: null
 }
 
 const initial_state_c = {
-    content: [],
-    syncing: false,
-    error: null
+  content: [],
+  syncing: false,
+  error: null
 }
 
 const a_reducer = (action, state) => {
-    state = state || initial_state_a;
-    let v
-    switch(action.type){
-        case A_FETCH:
-            return Object.assign({}, state, {
-                syncing: true
-            })
-            break
-        case A_SUCCESS:
-            return Object.assign({}, state, {
-                syncing: false,
-                content: [
-                    ...state.content,
-                    ...action.content
-                ]
-            })
-            break
-        case A_FAILURE:
-            return Object.assign({}, state, {
-                error: action.error
-            })
-            break
-        case A_DELETE:
-            return Object.assign({}, state, {
-                syncing: true
-            })
-            break
-        case A_DELETE_SUCCESS:
-            v = state.content.filter((c) => c.id !== action.id)
-            return Object.assign({}, state, {
-                content: v
-            })
-            break
-        case A_DELETE_PLAYLIST:
-            return Object.assign({}, state, {
-                content: []
-            })
-            break
-        case A_RESTART:
-            return Object.assign({}, state, initial_state_a)
-            break
-        default:
-            return state
-            break
-    }
+  state = state || initial_state_a
+  let v
+  switch (action.type) {
+    case A_FETCH:
+      return Object.assign({}, state, {
+        syncing: true
+      })
+      break
+    case A_SUCCESS:
+      return Object.assign({}, state, {
+        syncing: false,
+        content: [
+          ...state.content,
+          ...action.content
+        ]
+      })
+      break
+    case A_FAILURE:
+      return Object.assign({}, state, {
+        error: action.error
+      })
+      break
+    case A_DELETE:
+      return Object.assign({}, state, {
+        syncing: true
+      })
+      break
+    case A_DELETE_SUCCESS:
+      v = state.content.filter((c) => c.id !== action.id)
+      return Object.assign({}, state, {
+        content: v
+      })
+      break
+    case A_DELETE_PLAYLIST:
+      return Object.assign({}, state, {
+        content: []
+      })
+      break
+    case A_RESTART:
+      return Object.assign({}, state, initial_state_a)
+      break
+    default:
+      return state
+      break
+  }
 }
 
- const b_reducer = (action, state ) => {
-    state = state || initial_state_b;
-    switch(action.type){
-        case B_FETCH:            
-            return Object.assign({}, state, {
-                syncing: true
-            })
-            break
-        case B_SUCCESS:
-            return Object.assign({}, state, {
-                syncing: false,
-                content: [
-                    ...state.content,
-                    ...action.content
-                ]
-            })
-            break
-        case B_FAILURE:
-            return Object.assign({}, state, {
-                error: action.error
-            })
-            break
-        case B_RESTART:
-            return Object.assign({}, state, initial_state_b)
-            break
-        case B_COMPARE_PLAYLIST:
-            return Object.assign({}, state, {
-                syncing: false,
-                content: [
-                    ...action.content
-                ]
-            })
-        default:
-            return state
-            break
-    }
+const b_reducer = (action, state) => {
+  state = state || initial_state_b
+  switch (action.type) {
+    case B_FETCH:
+      return Object.assign({}, state, {
+        syncing: true
+      })
+      break
+    case B_SUCCESS:
+      return Object.assign({}, state, {
+        syncing: false,
+        content: [
+          ...state.content,
+          ...action.content
+        ]
+      })
+      break
+    case B_FAILURE:
+      return Object.assign({}, state, {
+        error: action.error
+      })
+      break
+    case B_RESTART:
+      return Object.assign({}, state, initial_state_b)
+      break
+    case B_COMPARE_PLAYLIST:
+      return Object.assign({}, state, {
+        syncing: false,
+        content: [
+          ...action.content
+        ]
+      })
+    default:
+      return state
+      break
+  }
 }
 
- const c_reducer = ( action, state ) => {
-    state = state || initial_state_c;
-    switch(action.type){
-        case C_FETCH:
-            return Object.assign({}, state, {
-                syncing: true
-            })
-            break
-        case C_SUCCESS:
-            return Object.assign({}, state, {
-                syncing: false,
-                content: [
-                    ...state.content,
-                    ...action.content
-                ]
-            })
-            break
-        case C_FAILURE:
-            return Object.assign({}, state, {
-                error: action.error
-            })
-            break
-        case C_DELETE:
-            return Object.assign({}, state, {
-                syncing: true
-            })
-            break;
-        case C_RESTART:
-            return Object.assign({}, state, initial_state_c)
-            break
-        case C_DELETE_FAILURE:
-            return Object.assign({}, state, {
-                error: action.error
-            })
-            break;
-        case C_DELETE_SUCCESS:
-            v = state.content.filter((c) => c.id !== action.id)
-            return Object.assign({}, state, {
-                content: v
-            })
-            break;
-        case C_DELETE_PLAYLIST:
-            return Object.assign({}, state, {
-                content: []
-            })
-            break
-        case C_START:
-            return Object.assign({}, state, {
-                content: [
-                    ...state.content,
-                    ...action.content
-                ]
-            })
-        default:
-            return state
-            break
-    }
+const c_reducer = (action, state) => {
+  state = state || initial_state_c
+  switch (action.type) {
+    case C_FETCH:
+      return Object.assign({}, state, {
+        syncing: true
+      })
+      break
+    case C_SUCCESS:
+      return Object.assign({}, state, {
+        syncing: false,
+        content: [
+          ...state.content,
+          ...action.content
+        ]
+      })
+      break
+    case C_FAILURE:
+      return Object.assign({}, state, {
+        error: action.error
+      })
+      break
+    case C_DELETE:
+      return Object.assign({}, state, {
+        syncing: true
+      })
+      break
+    case C_RESTART:
+      return Object.assign({}, state, initial_state_c)
+      break
+    case C_DELETE_FAILURE:
+      return Object.assign({}, state, {
+        error: action.error
+      })
+      break
+    case C_DELETE_SUCCESS:
+      v = state.content.filter((c) => c.id !== action.id)
+      return Object.assign({}, state, {
+        content: v
+      })
+      break
+    case C_DELETE_PLAYLIST:
+      return Object.assign({}, state, {
+        content: []
+      })
+      break
+    case C_START:
+      return Object.assign({}, state, {
+        content: [
+          ...state.content,
+          ...action.content
+        ]
+      })
+    default:
+      return state
+      break
+  }
 }
 
- const combineReducers = (reducers) => {
-    const root = (action, state) => {
-        return Object.keys(reducers).reduce((acumulator, current)=> {
-            acumulator[current] = reducers[current](action, state[current])
-            return acumulator
-        }, {})
-    }
-    return root
+const combineReducers = (reducers) => {
+  const root = (action, state) => {
+    return Object.keys(reducers).reduce((acumulator, current) => {
+      acumulator[current] = reducers[current](action, state[current])
+      return acumulator
+    }, {})
+  }
+  return root
 }
 
 module.exports = {
-    a_reducer,
-    b_reducer,
-    c_reducer,
-    combineReducers
+  a_reducer,
+  b_reducer,
+  c_reducer,
+  combineReducers
 }
