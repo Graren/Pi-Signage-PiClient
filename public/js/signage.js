@@ -40,12 +40,10 @@ const processContent = () => {
     let file = content[index]
 
     if (!file) {
-      console.warn('NO FILES')
       if (content.length > 0) {
         index = -1
         return processContent()
       } else {
-        console.warn('NO CONTENT')
         imgHolder.classList.add('hidden')
         vidHolder.classList.add('hidden')
         return
@@ -101,7 +99,6 @@ setTimeout(() => {
         path: file.servedPath,
         fit: 'cover'
       }))
-      console.log('EL tamano es ' + content.length + ' ksdkds')
       if (previousContentLength === 0 && content.length > 0) {
         processContent()
       }
