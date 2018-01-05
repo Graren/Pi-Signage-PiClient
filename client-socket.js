@@ -22,28 +22,32 @@ const device = {
 const timeout = 30 * 1000
 
 const readToken = () =>
-    new Promise((resolve, reject) => {
-      fs.readFile(configPaths.tokenFile, 'utf8', (err, token) => {
-        if (err) {
-          reject({ error: err })
-        }
+  new Promise((resolve, reject) => {
+    fs.readFile(configPaths.tokenFile, 'utf8', (err, token) => {
+      if (err) {
+        return reject(err)
+      }
 
-        resolve(token.replace('\n', ''))
-      })
+      if (!token) {
+        return reject(new Error('Token undefined'))
+      }
+
+      resolve(token.replace('\n', ''))
     })
+  })
 
 const getDeviceInfo = () =>
-    readToken()
-        .then((token) => {
-          const headers = {
-            Authorization: `Bearer ${token.trim()}`
-          }
-          const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.1.104:8000'
-          return fetch(`http://${host}/api/v1/dispositivo/info`, { headers })
-        })
-        .then(res => {
-          return res.json()
-        })
+  readToken()
+    .then(token => {
+      const headers = {
+        Authorization: `Bearer ${token.trim()}`
+      }
+      const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.1.104:8000'
+      return fetch(`http://${host}/api/v1/dispositivo/info`, { headers })
+    })
+    .then(res => {
+      return res.json()
+    })
 
 const initialize = async () => {
   try {
@@ -55,7 +59,7 @@ const initialize = async () => {
         device.isAlive = true
         resolve(ws)
       })
-      ws.on('error', (e) => {
+      ws.on('error', e => {
         console.log('Connection error')
       })
       ws.on('close', () => {
@@ -66,16 +70,21 @@ const initialize = async () => {
     websocket.on('message', function incoming (message) {
       const act = JSON.parse(message)
       const { request, response } = act
-      if (request.deviceGroupId === device.deviceGroupId || request.deviceId === device.id) {
-                // pubsock.send(['websocket', message])
+      if (
+        request.deviceGroupId === device.deviceGroupId ||
+        request.deviceId === device.id
+      ) {
+        // pubsock.send(['websocket', message])
         switch (request.type) {
           case 'REQUEST_GROUP':
             if (response.success) {
-              websocket.send(JSON.stringify({ type: 'REQUEST_CONTENT', id: device.id}))
+              websocket.send(
+                JSON.stringify({ type: 'REQUEST_CONTENT', id: device.id })
+              )
             }
             break
           case 'REQUEST_CONTENT':
-                        // console.log(response)
+            // console.log(response)
             const msg = {
               action: COMPARE_PLAYLIST,
               payload: response
@@ -87,14 +96,18 @@ const initialize = async () => {
         }
       }
     })
-    getDeviceInfo().then(data => {
-            // id, grupo
-      const { grupo, id } = data
-      device.deviceGroupId = grupo
-      device.id = id
-      console.log('Sending request for group data')
-      websocket.send(JSON.stringify({ type: 'REQUEST_GROUP', deviceGroupId: grupo, id}))
-    }).catch(e => console.log(e))
+    getDeviceInfo()
+      .then(data => {
+        // id, grupo
+        const { grupo, id } = data
+        device.deviceGroupId = grupo
+        device.id = id
+        console.log('Sending request for group data')
+        websocket.send(
+          JSON.stringify({ type: 'REQUEST_GROUP', deviceGroupId: grupo, id })
+        )
+      })
+      .catch(e => console.log(e))
   } catch (e) {
     console.log(e)
   }
@@ -107,6 +120,4 @@ try {
   console.log(e)
 }
 
-setInterval(() => {
-
-}, 5000)
+setInterval(() => {}, 5000)

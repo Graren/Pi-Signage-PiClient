@@ -59,7 +59,11 @@ const readToken = () =>
   new Promise((resolve, reject) => {
     fs.readFile(configPaths.tokenFile, 'utf8', (err, token) => {
       if (err) {
-        reject(err)
+        return reject(err)
+      }
+
+      if (!token) {
+        return reject(new Error('Token undefined'))
       }
 
       resolve(token.replace('\n', ''))
