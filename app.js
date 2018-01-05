@@ -116,11 +116,23 @@ io.on('connection', socket => {
       })
       .catch(err => {
         if (clientConnectedToAP) {
-          socket.emit('location', { location: 'init' })
+          // socket.emit('location', { location: 'init' })
           clientConnectedToAP = false
         }
       })
   }, 2000)
+
+  socket.on('request-saved-state', () => {
+    fs.readFile(
+      path.join(__dirname, 'test', 'store', 'store', 'state.json'),
+      'utf8',
+      function (err, data) {
+        if (err) return
+        const state = JSON.parse(data)
+        socket.emit('current-state', state)
+      }
+    )
+  })
 
   socket.on('connect-wifi', () => {
     let connectTimeout = null
@@ -220,6 +232,7 @@ app.use((req, res, next) => {
   next()
 })
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }))
+app.use('/static', express.static(path.join(__dirname, 'test', 'A', 'static')))
 
 // Add routes
 require('./app/routes/index')(app)
