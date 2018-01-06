@@ -19,6 +19,8 @@ const socketIO = require('socket.io')
 const scripts = require('./scripts')
 const configPaths = require('./app/configPaths')
 const fs = require('fs')
+const forever = require('forever-monitor')
+
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
  */
@@ -28,7 +30,9 @@ dotenv.load({ path: '.env.example' })
  * Create Express server.
  */
 
-const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.1.114:8000'
+
+
+const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.1.131:8000'
 const app = express()
 const server = require('http').createServer(app)
 
@@ -38,7 +42,7 @@ app.io = io
 const startWifiMode = () => {
   require('child_process').spawn(
     'sh',
-    [path.join(configPaths.appFolder, 'start_wifi_client.sh')],
+    [path.join(configPaths.appFolder, 'swco.sh')],
     {
       stdio: 'inherit'
     }
@@ -53,6 +57,37 @@ const startApMode = () => {
       stdio: 'inherit'
     }
   )
+}
+
+const startSignage = () => {
+  console.log(":D")
+  require('child_process').exec(
+    'forever start-state.js',
+    {
+      cwd: __dirname,
+      stdio: 'inherit'
+    },
+    (e) => console.log(e)
+  )
+}
+
+const startShellSignage = () => {
+  require('child_process').spawn(
+    'sh',
+    [path.join(__dirname, 'start-signage.sh')],
+    {
+      stdio: 'inherit'
+    }
+  )
+}
+
+const startScreen = () => {
+  setTimeout(()=> {
+    require('child_process').spawn(
+      'sh',
+      [path.join(__dirname, 'start-screen.sh')]
+    )
+  },30000)
 }
 
 const readToken = () =>
@@ -80,6 +115,21 @@ const getDeviceInfo = () =>
     })
     .then(res => res.json())
 
+const index = new (forever.Monitor)('./test/index.js', {
+  max: 5,
+  silent: false,
+  minUptime: 2000,
+  spinSleepTime: 5000
+})
+
+index.on('start', function () {
+  console.log('Forever index started for first time.')
+})
+
+index.on('exit', function () {
+  console.error('ind file has exited after ' + index.max + ' restarts')
+})
+
 const initApp = () => {
   readToken()
     .then(token => {
@@ -91,6 +141,8 @@ const initApp = () => {
     })
     .then(() => getDeviceInfo())
     .then(() => {
+      startShellSignage()
+      startScreen()
       io.emit('location', { location: 'signage' })
     })
     .catch(e => {
@@ -259,3 +311,23 @@ server.listen(app.get('port'), app.get('host'), () => {
   console.log('  Press CTRL-C to stop\n')
   initApp()
 })
+
+
+// Exit handler.
+function exitHandler (options, err) {
+  try {
+        // Killing node process manually that is running "Index.js" file.
+    process.kill(index.childData.pid)    
+    console.log('index  process killed succesfully!!')
+    console.log('Forever exit!!')
+  } catch (err) {
+    console.log('index  process already stopped!!')
+    console.log('Forever exit!!')
+  }
+
+    // Killing forever process.
+  process.exit()
+}
+
+// Handling user exit events like Ctrl+C.
+process.on('SIGINT', exitHandler.bind(null, {exit: true}))
