@@ -1,29 +1,32 @@
 const {
-    A_FETCH,
-    A_SUCCESS,
-    A_FAILURE,
-    A_DELETE,
-    A_DELETE_FAILURE,
-    A_DELETE_SUCCESS,
-    B_FETCH,
-    B_SUCCESS,
-    B_FAILURE,
-    B_NEW_VIDEO,
-    B_DELETE_VIDEO,
-    B_DELETE_PLAYLIST,
-    B_COMPARE_PLAYLIST,
-    C_FETCH,
-    C_SUCCESS,
-    C_FAILURE,
-    C_DELETE,
-    C_DELETE_SUCCESS,
-    C_DELETE_FAILURE,
-    A_DELETE_PLAYLIST,
-    C_DELETE_PLAYLIST,
-    C_START,
-    A_RESTART,
-    B_RESTART,
-    C_RESTART
+  A_FETCH,
+  A_SUCCESS,
+  A_FAILURE,
+  A_DELETE,
+  A_DELETE_FAILURE,
+  A_DELETE_SUCCESS,
+  B_FETCH,
+  B_SUCCESS,
+  B_FAILURE,
+  B_NEW_VIDEO,
+  B_DELETE_VIDEO,
+  B_DELETE_PLAYLIST,
+  B_COMPARE_PLAYLIST,
+  C_FETCH,
+  C_SUCCESS,
+  C_FAILURE,
+  C_DELETE,
+  C_DELETE_SUCCESS,
+  C_DELETE_FAILURE,
+  A_DELETE_PLAYLIST,
+  C_DELETE_PLAYLIST,
+  C_START,
+  A_RESTART,
+  B_RESTART,
+  C_RESTART,
+  A_POSTRESTART,
+  B_POSTRESTART,
+  C_POSTRESTART
 } = require('../actions')
 
 const download = require('./../downloader/index')
@@ -87,6 +90,15 @@ const a_reducer = (action, state) => {
       break
     case A_RESTART:
       return Object.assign({}, state, initial_state_a)
+      break
+    case A_POSTRESTART:
+      return Object.assign({}, state, {
+        syncing: false,
+        content: [
+          ...state.content,
+          ...action.content
+        ]
+      })
       break
     default:
       return state

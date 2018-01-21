@@ -1,31 +1,34 @@
 const {
-    A_FETCH,
-    A_SUCCESS,
-    A_FAILURE,
-    A_DELETE,
-    A_DELETE_FAILURE,
-    A_DELETE_SUCCESS,
-    B_FETCH,
-    B_SUCCESS,
-    B_FAILURE,
-    B_NEW_VIDEO,
-    B_DELETE_VIDEO,
-    B_DELETE_PLAYLIST,
-    B_NEW_PLAYLIST,
-    C_FETCH,
-    C_SUCCESS,
-    C_FAILURE,
-    C_DELETE,
-    C_DELETE_SUCCESS,
-    C_DELETE_FAILURE,
-    A_DELETE_PLAYLIST,
-    C_DELETE_PLAYLIST,
-    C_START,
-    B_COMPARE_PLAYLIST,
-    A_RESTART,
-    B_RESTART,
-    C_RESTART,
-    RESTART
+  A_FETCH,
+  A_SUCCESS,
+  A_FAILURE,
+  A_DELETE,
+  A_DELETE_FAILURE,
+  A_DELETE_SUCCESS,
+  B_FETCH,
+  B_SUCCESS,
+  B_FAILURE,
+  B_NEW_VIDEO,
+  B_DELETE_VIDEO,
+  B_DELETE_PLAYLIST,
+  B_NEW_PLAYLIST,
+  C_FETCH,
+  C_SUCCESS,
+  C_FAILURE,
+  C_DELETE,
+  C_DELETE_SUCCESS,
+  C_DELETE_FAILURE,
+  A_DELETE_PLAYLIST,
+  C_DELETE_PLAYLIST,
+  C_START,
+  B_COMPARE_PLAYLIST,
+  A_RESTART,
+  B_RESTART,
+  C_RESTART,
+  RESTART,
+  A_POSTRESTART,
+  B_POSTRESTART,
+  C_POSTRESTART
 } = require('../actions')
 const fs = require('fs')
 const path = require('path')
@@ -34,19 +37,61 @@ const download = require('./../downloader/index')
 const deleteFile = require('./../downloader/deleter')
 const readState = () => {
   return new Promise((resolve, reject) => {
-    fs.readFile(path.join(__dirname, '..', 'store', 'state.json'), 'utf8', function (err, data) {
-      if (err) reject(err)
-      const obj = JSON.parse(data)
-      resolve(obj)
-    })
+    if (fs.existsSync(path)) {
+      fs.readFile(path.join(__dirname, '..', 'store', 'state.json'), 'utf8', function (err, data) {
+        if (err) reject({
+          err
+        })
+        const obj = JSON.parse(data)
+        resolve(obj)
+      }) // Do something
+    } else {
+      reject({
+        err: 'file unexistant'
+      })
+    }
+
   })
 }
+
+const {
+  sep
+} = require('path')
+const destination = `A`
+const folder = 'test'
 
 const a_saga = async(action, dispatch, root) => {
   let state
   switch (action.type) {
     case A_FETCH:
       dispatch(action)
+      const p = action.path.split(sep)
+      const sliced = p.slice(2)
+      const actualPath = paths.join(folder, destination, ...sliced)
+      const rd = fs.createReadStream(path)
+      rd.on('error', function (err) {
+        log.log(`An error happened reading ${err.toString()}`, ERROR, component)
+      })
+      rd.on('end', function () {
+        //TODO: A success
+        const result = {
+          type: A_SUCCESS,
+          content: [{
+            id: action.id,
+            name: action.name,
+            format: action.format,
+            path: p.join(__dirname, '..', path),
+            servedPath: `/static/${name}`,
+            time: action.time
+          }]
+        }
+        root(result, dispatch)
+      })
+      const wr = fs.createWriteStream(actualPath)
+      wr.on('error', function (err) {
+        log.log(`An error happened writing${err.toString()}`, ERROR, component)
+      })
+      rd.pipe(wr)
       break
     case A_SUCCESS:
       dispatch(action)
@@ -144,8 +189,7 @@ const b_saga = async(action, dispatch, root) => {
       break
     case B_RESTART:
       dispatch(action)
-      const actions = [
-        {
+      const actions = [{
           type: A_RESTART
         },
         {
@@ -157,12 +201,39 @@ const b_saga = async(action, dispatch, root) => {
       })
       break
     case RESTART:
+      console.log(restart)
       const data = await readState()
-      const a = {
-        type: RESTART,
-        state: data
+      if (!data.err) {
+        const ac = {
+          type: B_RESTART
+        }
+        root(ac, dispatch)
+        console.log(data)
+        const a = {
+          type: B_POSTRESTART,
+          state: data
+        }
+        root(a, dispatch)
+      } else {
+        console.log(data.err)
       }
-      dispatch(a)
+      break
+    case B_POSTRESTART:
+      result = {
+        type: B_SUCCESS,
+        content: data.b.content
+      }
+      dispatch(result)
+      helper = {
+        type: A_SUCCESS,
+        content: data.a.content
+      }
+      dispatch(helper)
+      helper_2 = {
+        type: C_SUCCESS,
+        content: data.c.content
+      }
+      dispatch(helper_2)
       break
     case B_DELETE_VIDEO:
       action2 = Object.assign({}, action, {
@@ -180,7 +251,9 @@ const b_saga = async(action, dispatch, root) => {
       result = dispatch(action)
       helper = result.b.content.map(video => {
         if (result.a.content.filter(e => e.id === video.id).length > 0) {
-          return { type: 'somerandomstringhaha'}
+          return {
+            type: 'somerandomstringhaha'
+          }
         } else {
           return {
             type: C_FETCH,
@@ -190,7 +263,9 @@ const b_saga = async(action, dispatch, root) => {
       })
       helper_2 = result.a.content.map(video => {
         if (result.b.content.filter(e => e.id === video.id).length > 0) {
-          return { type: 'somerandomstringhaha'}
+          return {
+            type: 'somerandomstringhaha'
+          }
         } else {
           return {
             type: C_DELETE,
@@ -232,9 +307,9 @@ const c_saga = async(action, dispatch, root) => {
     case C_FETCH:
       dispatch(action)
       isImage = !!/jpg|png|bmp/.test(action.format)
-      name = isImage
-                ? action.id + '_' + action.time + '.' + action.format
-                : action.id + '.' + action.format
+      name = isImage ?
+        action.id + '_' + action.time + '.' + action.format :
+        action.id + '.' + action.format
       a = await download(action.url, name.split('.')[0], action.format).catch(e => ({
         error: e.error
       }))
@@ -259,7 +334,15 @@ const c_saga = async(action, dispatch, root) => {
       break
     case C_SUCCESS:
       dispatch(action)
-
+      result = {
+        type: A_FETCH,
+        id: action.content.id,
+        name: action.content.name,
+        format: action.content.format,
+        path: action.content.path,
+        time: action.content.time
+      }
+      root(result, dispatch)
       break
     case C_FAILURE:
       dispatch(action)
