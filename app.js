@@ -24,7 +24,9 @@ const forever = require('forever-monitor')
 /**
  * Load environment variables from .env file, where API keys and passwords are configured.
  */
-dotenv.load({ path: '.env.example' })
+dotenv.load({
+  path: '.env.example'
+})
 
 /**
  * Create Express server.
@@ -41,9 +43,7 @@ app.io = io
 
 const startWifiMode = () => {
   require('child_process').spawn(
-    'sh',
-    [path.join(configPaths.appFolder, 'swco.sh')],
-    {
+    'sh', [path.join(configPaths.appFolder, 'swco.sh')], {
       stdio: 'inherit'
     }
   )
@@ -51,19 +51,15 @@ const startWifiMode = () => {
 
 const startApMode = () => {
   require('child_process').spawn(
-    'sh',
-    [path.join(configPaths.appFolder, 'start_wifi_ap.sh')],
-    {
+    'sh', [path.join(configPaths.appFolder, 'start_wifi_ap.sh')], {
       stdio: 'inherit'
     }
   )
 }
 
 const startSignage = () => {
-  console.log(":D")
   require('child_process').exec(
-    'forever start-state.js',
-    {
+    'forever start-state.js', {
       cwd: __dirname,
       stdio: 'inherit'
     },
@@ -73,21 +69,18 @@ const startSignage = () => {
 
 const startShellSignage = () => {
   require('child_process').spawn(
-    'sh',
-    [path.join(__dirname, 'start-signage.sh')],
-    {
+    'sh', [path.join(__dirname, 'start-signage.sh')], {
       stdio: 'inherit'
     }
   )
 }
 
 const startScreen = () => {
-  setTimeout(()=> {
+  setTimeout(() => {
     require('child_process').spawn(
-      'sh',
-      [path.join(__dirname, 'start-screen.sh')]
+      'sh', [path.join(__dirname, 'start-screen.sh')]
     )
-  },30000)
+  }, 30000)
 }
 
 const readToken = () =>
@@ -107,15 +100,17 @@ const readToken = () =>
 
 const getDeviceInfo = () =>
   readToken()
-    .then(token => {
-      const headers = {
-        Authorization: `Bearer ${token}`
-      }
-      return fetch(`http://${host}/api/v1/dispositivo/info`, { headers })
+  .then(token => {
+    const headers = {
+      Authorization: `Bearer ${token}`
+    }
+    return fetch(`http://${host}/api/v1/dispositivo/info`, {
+      headers
     })
-    .then(res => res.json())
+  })
+  .then(res => res.json())
 
-const index = new (forever.Monitor)('./test/index.js', {
+const index = new(forever.Monitor)('./test/index.js', {
   max: 5,
   silent: false,
   minUptime: 2000,
@@ -143,17 +138,23 @@ const initApp = () => {
     .then(() => {
       startShellSignage()
       startScreen()
-      io.emit('location', { location: 'signage' })
+      io.emit('location', {
+        location: 'signage'
+      })
     })
     .catch(e => {
       console.log(e)
       startApMode()
-      io.emit('location', { location: 'init' })
+      io.emit('location', {
+        location: 'init'
+      })
     })
 }
 
 const initSignage = () => {
-  io.emit('location', { location: 'signage' })
+  io.emit('location', {
+    location: 'signage'
+  })
 }
 
 io.on('connection', socket => {
@@ -209,7 +210,9 @@ io.on('connection', socket => {
         checkInternetInterval = setInterval(() => {
           const opts = {
             method: 'post',
-            body: JSON.stringify({ token })
+            body: JSON.stringify({
+              token
+            })
           }
           fetch(`http://${host}/api/v1/dispositivo/activar/`, opts)
             .then(res => {
@@ -233,7 +236,9 @@ io.on('connection', socket => {
 const zmq = require('zeromq')
 
 const subsock = zmq.socket('sub')
-const { wbPort } = require('./test/config/constants')
+const {
+  wbPort
+} = require('./test/config/constants')
 
 subsock.connect(`tcp://127.0.0.1:${wbPort}`)
 subsock.subscribe('client')
@@ -261,7 +266,9 @@ app.use(
 )
 app.use(logger('dev'))
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.urlencoded({
+  extended: true
+}))
 app.use(expressValidator())
 // app.use(flash());
 app.use((req, res, next) => {
@@ -287,7 +294,9 @@ app.use((req, res, next) => {
   res.setHeader('Cache-Control', 'no-cache')
   next()
 })
-app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }))
+app.use(express.static(path.join(__dirname, 'public'), {
+  maxAge: 31557600000
+}))
 app.use('/static', express.static(path.join(__dirname, 'test', 'A', 'static')))
 
 // Add routes
@@ -314,10 +323,10 @@ server.listen(app.get('port'), app.get('host'), () => {
 
 
 // Exit handler.
-function exitHandler (options, err) {
+function exitHandler(options, err) {
   try {
-        // Killing node process manually that is running "Index.js" file.
-    process.kill(index.childData.pid)    
+    // Killing node process manually that is running "Index.js" file.
+    process.kill(index.childData.pid)
     console.log('index  process killed succesfully!!')
     console.log('Forever exit!!')
   } catch (err) {
@@ -325,9 +334,11 @@ function exitHandler (options, err) {
     console.log('Forever exit!!')
   }
 
-    // Killing forever process.
+  // Killing forever process.
   process.exit()
 }
 
 // Handling user exit events like Ctrl+C.
-process.on('SIGINT', exitHandler.bind(null, {exit: true}))
+process.on('SIGINT', exitHandler.bind(null, {
+  exit: true
+}))

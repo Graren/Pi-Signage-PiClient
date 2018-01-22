@@ -40,7 +40,7 @@ const download = require('./../downloader/index')
 const deleteFile = require('./../downloader/deleter')
 
 const compare = (a, b) => {
-  const props = ['id', 'format', 'time', 'ajuste']
+  const props = ['id', 'format', 'time', 'adjustment']
   const results = props.map(prop => {
     return a[prop] === b[prop]
   })
@@ -97,7 +97,8 @@ const a_saga = async(action, dispatch, root) => {
             format: action.format,
             path: actualPath,
             servedPath: `/static/${action.name}`,
-            time: action.time
+            time: action.time,
+            adjustment: action.adjustment
           }]
         }
         root(result, dispatch)
@@ -266,7 +267,7 @@ const b_saga = async(action, dispatch, root) => {
       tmpVid2 = result.c.content.filter(e => e.id === action.target.id)[0]
       tmpVid = Object.assign({}, tmpVid2, {
         time: action.target.time,
-        ajuste: action.target.ajuste
+        adjustment: action.target.adjustment
       })
       a = {
         type: C_UPDATE,
@@ -278,7 +279,7 @@ const b_saga = async(action, dispatch, root) => {
       tmpVid2 = result.a.content.filter(e => e.id === action.target.id)[0]
       tmpVid = Object.assign({}, tmpVid2, {
         time: action.target.time,
-        ajuste: action.target.ajuste
+        adjustment: action.target.adjustment
       })
       a = {
         type: A_UPDATE,
@@ -378,7 +379,8 @@ const c_saga = async(action, dispatch, root) => {
             name,
             format: action.format,
             path: a.data,
-            time: isImage ? action.time : null
+            time: isImage ? action.time : null,
+            adjustment: action.adjustment
           }]
         }
       }
@@ -392,7 +394,8 @@ const c_saga = async(action, dispatch, root) => {
         name: action.content[0].name,
         format: action.content[0].format,
         path: action.content[0].path,
-        time: action.content[0].time
+        time: action.content[0].time,
+        adjustment: action.content[0].adjustment
       }
       console.log(result)
       root(result, dispatch)
