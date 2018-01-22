@@ -308,9 +308,7 @@ const c_saga = async(action, dispatch, root) => {
     case C_FETCH:
       dispatch(action)
       isImage = !!/jpg|png|bmp/.test(action.format)
-      name = isImage ?
-        action.id + '_' + action.time + '.' + action.format :
-        action.id + '.' + action.format
+      name = action.id + '.' + action.format
       a = await download(action.url, name.split('.')[0], action.format).catch(e => ({
         error: e.error
       }))
