@@ -8,29 +8,29 @@ let content = []
 //   {
 //     type: 'video',
 //     src: './testSignageAssets/vid1.mp4',
-//     fit: 'cover'
+//     adjustment: 'cover'
 //   },
 //   {
 //     type: 'img',
 //     time: 10,
 //     src: './testSignageAssets/img1.png',
-//     fit: 'cover'
+//     adjustment: 'cover'
 //   },
 //   {
 //     type: 'video',
 //     src: './testSignageAssets/vid2.mp4',
-//     fit: 'fill' // Fill only on video at the moment
+//     adjustment: 'fill' // Fill only on video at the moment
 //   },
 //   {
 //     type: 'img',
 //     time: 5,
 //     src: './testSignageAssets/img2.png',
-//     fit: 'contain'
+//     adjustment: 'contain'
 //   },
 //   {
 //     type: 'video',
 //     src: './testSignageAssets/vid3.mp4',
-//     fit: 'contain'
+//     adjustment: 'contain'
 //   }
 // ]
 
@@ -53,8 +53,8 @@ const processContent = () => {
     if (file.format === 'mp4') {
       vidHolder.src = file.path
 
-      if (file.fit) {
-        vidHolder.style = `object-fit: ${file.fit};`
+      if (file.adjustment) {
+        vidHolder.style = `object-fit: ${file.adjustment};`
       }
 
       vidHolder.play()
@@ -70,8 +70,8 @@ const processContent = () => {
     } else if (['jpg', 'jpeg', 'png'].indexOf(file.format) > -1) {
       imgHolder.style = `background-image: url('${file.path}')`
 
-      if (file.fit) {
-        vidHolder.style += `background-size: ${file.fit};`
+      if (file.adjustment) {
+        vidHolder.style += `background-size: ${file.adjustment};`
       }
 
       imgHolder.classList.remove('hidden')
@@ -96,8 +96,7 @@ setTimeout(() => {
       const previousContentLength = content.length
       content = stateContent.map(file => ({
         ...file,
-        path: file.servedPath,
-        fit: 'cover'
+        path: file.servedPath
       }))
       if (previousContentLength === 0 && content.length > 0) {
         processContent()
