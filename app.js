@@ -32,7 +32,7 @@ dotenv.load({ path: '.env.example' })
 
 
 
-const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.1.131:8000'
+const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.2.136:8000'
 const app = express()
 const server = require('http').createServer(app)
 
@@ -42,7 +42,7 @@ app.io = io
 const startWifiMode = () => {
   require('child_process').spawn(
     'sh',
-    [path.join(configPaths.appFolder, 'swco.sh')],
+    [path.join(configPaths.appFolder, 'start_wifi_client.sh')],
     {
       stdio: 'inherit'
     }
@@ -89,6 +89,16 @@ const startScreen = () => {
     )
   },30000)
 }
+
+const startScreenOnInitPage = () => {
+  setTimeout(()=> {
+    require('child_process').spawn(
+      'sh',
+      [path.join(__dirname, 'start-screen-init.sh')]
+    )
+  },30000)
+}
+
 
 const readToken = () =>
   new Promise((resolve, reject) => {
@@ -146,13 +156,14 @@ const initApp = () => {
       io.emit('location', { location: 'signage' })
     })
     .catch(e => {
-      console.log(e)
       startApMode()
+      startScreenOnInitPage()
       io.emit('location', { location: 'init' })
     })
 }
 
 const initSignage = () => {
+  startShellSignage()
   io.emit('location', { location: 'signage' })
 }
 

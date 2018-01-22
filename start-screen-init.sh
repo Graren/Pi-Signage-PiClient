@@ -1,0 +1,1 @@
+exec sudo -u pi chromium-browser --fullscreen --kiosk http://localhost:8080/init
