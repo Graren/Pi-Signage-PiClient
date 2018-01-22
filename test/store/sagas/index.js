@@ -66,7 +66,7 @@ const a_saga = async(action, dispatch, root) => {
     case A_FETCH:
       dispatch(action)
       const cp = action.path
-      const actualPath = path.join(__dirname, "..","..","A","static",`${action.name}`)
+      const actualPath = path.join(__dirname, "..", "..", "A", "static", `${action.name}`)
       const rd = fs.createReadStream(cp)
       rd.on('error', function (err) {
         console.log(`An error happened reading ${err.toString()}`, ERROR, component)
@@ -172,6 +172,7 @@ const b_saga = async(action, dispatch, root) => {
   let action2
   let helper
   let helper_2
+  let tmpVid
   switch (action.type) {
     case B_FETCH:
       dispatch(action)
@@ -200,14 +201,12 @@ const b_saga = async(action, dispatch, root) => {
       })
       break
     case RESTART:
-      console.log("restart")
       const data = await readState()
       if (!data.err) {
         const ac = {
           type: B_RESTART
         }
         root(ac, dispatch)
-        console.log(data)
         const a = {
           type: B_POSTRESTART,
           state: data
@@ -248,20 +247,9 @@ const b_saga = async(action, dispatch, root) => {
       break
     case B_COMPARE_PLAYLIST:
       result = dispatch(action)
-      helper = result.b.content.map(video => {
-        if (result.a.content.filter(e => e.id === video.id).length > 0) {
-          return {
-            type: 'somerandomstringhaha'
-          }
-        } else {
-          return {
-            type: C_FETCH,
-            ...video
-          }
-        }
-      })
       helper_2 = result.a.content.map(video => {
-        if (result.b.content.filter(e => e.id === video.id).length > 0) {
+        tmpVid = result.b.content.filter(e => e.id === video.id)
+        if (tmpVid.length > 0 && !(!!/jpg|png|bmp/.test(tmpVid[0].format) && tmpVid[0].time !== video.time)) {
           return {
             type: 'somerandomstringhaha'
           }
@@ -272,7 +260,21 @@ const b_saga = async(action, dispatch, root) => {
           }
         }
       })
-      helper = [...helper, ...helper_2]
+      helper = result.b.content.map(video => {
+        tmpVid = result.a.content.filter(e => e.id === video.id)
+        if (tmpVid.length > 0) {
+          return {
+            type: 'somerandomstringhaha'
+          }
+        } else {
+          return {
+            type: C_FETCH,
+            ...video
+          }
+        }
+      })
+
+      helper = [...helper_2, ...helper]
       helper.map(act => {
         root(act, dispatch)
       })
