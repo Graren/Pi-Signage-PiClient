@@ -43,9 +43,6 @@ const getState = () => {
 const dispatch = (action) => {
   const state = _state.rootReducer(action, _state.state)
   _state.state = state
-  if (action.type === RESTART) {
-    _state.state = Object.assign({}, action.state)
-  }
   console.log(JSON.stringify(_state.state))
   _state.pub.send(['client', JSON.stringify(state)])
   return _state.state

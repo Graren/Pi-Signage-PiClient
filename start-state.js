@@ -78,7 +78,7 @@ logger.on('exit', function () {
 })
 
 client.on('start', function () {
-  console.log('logger index started for first time.')
+  console.log('Client index started for first time.')
 })
 
 client.on('exit', function () {
@@ -115,4 +115,4 @@ const timeout = setInterval(() => {
     clearInterval(timeout)         
      client.start()
   }
-}, 20000)
+}, 5000)

@@ -37,16 +37,16 @@ const download = require('./../downloader/index')
 const deleteFile = require('./../downloader/deleter')
 const readState = () => {
   return new Promise((resolve, reject) => {
-    if (fs.existsSync(path)) {
+    if (fs.existsSync(path.join(__dirname, '..', 'store', 'state.json'))) {
       fs.readFile(path.join(__dirname, '..', 'store', 'state.json'), 'utf8', function (err, data) {
-        if (err) reject({
+        if (err) resolve({
           err
         })
         const obj = JSON.parse(data)
         resolve(obj)
       }) // Do something
     } else {
-      reject({
+      resolve({
         err: 'file unexistant'
       })
     }
@@ -65,14 +65,17 @@ const a_saga = async(action, dispatch, root) => {
   switch (action.type) {
     case A_FETCH:
       dispatch(action)
-      const p = action.path.split(sep)
-      const sliced = p.slice(2)
-      const actualPath = paths.join(folder, destination, ...sliced)
-      const rd = fs.createReadStream(path)
+      const cp = action.path
+      const actualPath = path.join(__dirname, "..","..","A","static",`${action.name}`)
+      const rd = fs.createReadStream(cp)
       rd.on('error', function (err) {
-        log.log(`An error happened reading ${err.toString()}`, ERROR, component)
+        console.log(`An error happened reading ${err.toString()}`, ERROR, component)
       })
-      rd.on('end', function () {
+      const wr = fs.createWriteStream(actualPath)
+      wr.on('error', function (err) {
+        console.log(`An error happened writing${err.toString()}`, ERROR, component)
+      })
+      wr.on('finish', function () {
         //TODO: A success
         const result = {
           type: A_SUCCESS,
@@ -80,16 +83,12 @@ const a_saga = async(action, dispatch, root) => {
             id: action.id,
             name: action.name,
             format: action.format,
-            path: p.join(__dirname, '..', path),
-            servedPath: `/static/${name}`,
+            path: actualPath,
+            servedPath: `/static/${action.name}`,
             time: action.time
           }]
         }
         root(result, dispatch)
-      })
-      const wr = fs.createWriteStream(actualPath)
-      wr.on('error', function (err) {
-        log.log(`An error happened writing${err.toString()}`, ERROR, component)
       })
       rd.pipe(wr)
       break
@@ -201,7 +200,7 @@ const b_saga = async(action, dispatch, root) => {
       })
       break
     case RESTART:
-      console.log(restart)
+      console.log("restart")
       const data = await readState()
       if (!data.err) {
         const ac = {
@@ -221,17 +220,17 @@ const b_saga = async(action, dispatch, root) => {
     case B_POSTRESTART:
       result = {
         type: B_SUCCESS,
-        content: data.b.content
+        content: action.state.b.content
       }
       dispatch(result)
       helper = {
         type: A_SUCCESS,
-        content: data.a.content
+        content: action.state.a.content
       }
       dispatch(helper)
       helper_2 = {
         type: C_SUCCESS,
-        content: data.c.content
+        content: action.state.c.content
       }
       dispatch(helper_2)
       break
@@ -336,12 +335,13 @@ const c_saga = async(action, dispatch, root) => {
       dispatch(action)
       result = {
         type: A_FETCH,
-        id: action.content.id,
-        name: action.content.name,
-        format: action.content.format,
-        path: action.content.path,
-        time: action.content.time
+        id: action.content[0].id,
+        name: action.content[0].name,
+        format: action.content[0].format,
+        path: action.content[0].path,
+        time: action.content[0].time
       }
+      console.log(result)
       root(result, dispatch)
       break
     case C_FAILURE:
