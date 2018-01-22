@@ -10,7 +10,8 @@ const {
   DELETE,
   COMPARE_PLAYLIST,
   CHANGE_PLAYLIST,
-  DELETE_PLAYLIST
+  DELETE_PLAYLIST,
+  UPDATE
 } = require('./config/constants')
 const {
   bindDispatcher
@@ -25,7 +26,8 @@ const {
   B_SUCCESS,
   B_NEW_PLAYLIST,
   B_DELETE_PLAYLIST,
-  B_DELETE_VIDEO
+  B_DELETE_VIDEO,
+  B_UPDATE
 } = require('./store/actions/index')
 
 const dirs = ['A', 'C']
@@ -111,6 +113,13 @@ bindDispatcher().then(({
       case B_THROW:
         state_action = {
           type: B_THROW
+        }
+      case UPDATE:
+        state_action = {
+          type: B_UPDATE,
+          target: {
+            ...payload
+          }
         }
         break
       default:
