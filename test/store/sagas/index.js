@@ -28,13 +28,25 @@ const {
   RESTART,
   A_POSTRESTART,
   B_POSTRESTART,
-  C_POSTRESTART
+  C_POSTRESTART,
+  A_UPDATE,
+  B_UPDATE,
+  C_UPDATE
 } = require('../actions')
 const fs = require('fs')
 const path = require('path')
 
 const download = require('./../downloader/index')
 const deleteFile = require('./../downloader/deleter')
+
+const compare = (a, b) => {
+  const props = ['id', 'format', 'time', 'ajuste']
+  const results = props.map(prop => {
+    return a[prop] === b[prop]
+  })
+  console.log(results)
+  return results.every(val => val === true)
+}
 const readState = () => {
   return new Promise((resolve, reject) => {
     if (fs.existsSync(path.join(__dirname, '..', 'store', 'state.json'))) {
@@ -161,6 +173,9 @@ const a_saga = async(action, dispatch, root) => {
         }
       })(state, dispatch, root)
       break
+    case A_UPDATE:
+      dispatch(action)
+      break;
     default:
       break
   }
@@ -173,6 +188,7 @@ const b_saga = async(action, dispatch, root) => {
   let helper
   let helper_2
   let tmpVid
+  let tmpVid2
   switch (action.type) {
     case B_FETCH:
       dispatch(action)
@@ -245,11 +261,38 @@ const b_saga = async(action, dispatch, root) => {
       }
       root(action2, dispatch)
       break
+    case B_UPDATE:
+      result = dispatch(action)
+      tmpVid2 = result.c.content.filter(e => e.id === action.target.id)[0]
+      tmpVid = Object.assign({}, tmpVid2, {
+        time: action.target.time,
+        ajuste: action.target.ajuste
+      })
+      a = {
+        type: C_UPDATE,
+        content: {
+          ...tmpVid
+        }
+      }
+      root(a, dispatch)
+      tmpVid2 = result.a.content.filter(e => e.id === action.target.id)[0]
+      tmpVid = Object.assign({}, tmpVid2, {
+        time: action.target.time,
+        ajuste: action.target.ajuste
+      })
+      a = {
+        type: A_UPDATE,
+        content: {
+          ...tmpVid
+        }
+      }
+      root(a, dispatch)
+      break
     case B_COMPARE_PLAYLIST:
       result = dispatch(action)
       helper_2 = result.a.content.map(video => {
         tmpVid = result.b.content.filter(e => e.id === video.id)
-        if (tmpVid.length > 0 && !(!!/jpg|png|bmp/.test(tmpVid[0].format) && tmpVid[0].time !== video.time)) {
+        if (tmpVid.length > 0) {
           return {
             type: 'somerandomstringhaha'
           }
@@ -263,8 +306,18 @@ const b_saga = async(action, dispatch, root) => {
       helper = result.b.content.map(video => {
         tmpVid = result.a.content.filter(e => e.id === video.id)
         if (tmpVid.length > 0) {
-          return {
-            type: 'somerandomstringhaha'
+          if (!compare(tmpVid[0], video)) {
+            console.log("WOW")
+            //TODO: Update action
+            return {
+              type: B_UPDATE,
+              source: tmpVid[0],
+              target: video
+            }
+          } else {
+            return {
+              type: 'somerandomstringhaha'
+            }
           }
         } else {
           return {
@@ -414,6 +467,10 @@ const c_saga = async(action, dispatch, root) => {
       break
     case C_START:
       dispatch(action)
+      break;
+    case C_UPDATE:
+      dispatch(action)
+      break;
     default:
       break
   }

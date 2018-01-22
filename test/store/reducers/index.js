@@ -26,7 +26,10 @@ const {
   C_RESTART,
   A_POSTRESTART,
   B_POSTRESTART,
-  C_POSTRESTART
+  C_POSTRESTART,
+  A_UPDATE,
+  B_UPDATE,
+  C_UPDATE
 } = require('../actions')
 
 const download = require('./../downloader/index')
@@ -100,6 +103,17 @@ const a_reducer = (action, state) => {
         ]
       })
       break
+    case A_UPDATE:
+      v = state.content.filter(e => e.id !== action.content.id)
+      return Object.assign({}, state, {
+        content: []
+      }, {
+        content: [
+          ...v,
+          action.content
+        ]
+      })
+      break;
     default:
       return state
       break
@@ -146,6 +160,7 @@ const b_reducer = (action, state) => {
 
 const c_reducer = (action, state) => {
   state = state || initial_state_c
+  let v
   switch (action.type) {
     case C_FETCH:
       return Object.assign({}, state, {
@@ -197,6 +212,17 @@ const c_reducer = (action, state) => {
           ...action.content
         ]
       })
+    case C_UPDATE:
+      v = state.content.filter(e => e.id !== action.content.id)
+      return Object.assign({}, state, {
+        content: []
+      }, {
+        content: [
+          ...v,
+          action.content
+        ]
+      })
+      break;
     default:
       return state
       break
