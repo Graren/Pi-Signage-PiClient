@@ -71,7 +71,7 @@ const processContent = () => {
       imgHolder.style = `background-image: url('${file.path}')`
 
       if (file.adjustment) {
-        vidHolder.style += `background-size: ${file.adjustment};`
+        imgHolder.style += `background-size: ${file.adjustment};`
       }
 
       imgHolder.classList.remove('hidden')
