@@ -1,7 +1,7 @@
 const express = require('express')
 const http = require('http')
 const url = require('url')
-const { wsPort, COMPARE_PLAYLIST } = require('./test/config/constants')
+const { wsPort, COMPARE_PLAYLIST, CHANGE_PLAYLIST } = require('./test/config/constants')
 const zmq = require('zeromq')
 const pubsock = zmq.socket('pub')
 const path = require('path')
@@ -10,7 +10,7 @@ const fs = require('fs')
 const fetch = require('node-fetch')
 
 const WebSocket = require('ws')
-
+const 
 const device = {
   id: null,
   deviceGroupId: null,
@@ -42,7 +42,7 @@ const getDeviceInfo = () =>
       const headers = {
         Authorization: `Bearer ${token.trim()}`
       }
-      const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.2.136:8000'
+      const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.1.131:8000'
       return fetch(`http://${host}/api/v1/dispositivo/info`, { headers })
     })
     .then(res => {
@@ -52,7 +52,7 @@ const getDeviceInfo = () =>
 const initialize = async () => {
   try {
     const websocket = await new Promise((resolve, reject) => {
-      const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.2.136:8000'
+      const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.1.131:8000'
       const ws = new WebSocket('ws://' + host)
       ws.on('open', function open () {
         console.log('Opened')
@@ -92,6 +92,13 @@ const initialize = async () => {
             pubsock.send(['websocket', JSON.stringify(msg)])
             break
           default:
+            const m = JSON.parse(message)
+            if(m.action === CHANGE_PLAYLIST){
+              const {newGroupId} = m
+              if(newGroupId){
+                device.deviceGroupId = newGroupId
+              }
+            }
             pubsock.send(['websocket', message])
         }
       }

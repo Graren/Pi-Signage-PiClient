@@ -34,7 +34,7 @@ dotenv.load({
 
 
 
-const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.2.136:8000'
+const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.1.131:8000'
 const app = express()
 const server = require('http').createServer(app)
 
