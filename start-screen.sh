@@ -1,1 +1,1 @@
-exec sudo -u pi chromium-browser --fullscreen --kiosk http://localhost:8080/signage
+exec sudo -u pi chromium-browser --fullscreen --kiosk --disable-infobars  --disable-session-crashed-bubble http://localhost:8080/signage
