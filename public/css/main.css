@@ -12,6 +12,10 @@ body {
   background-position: center;
   font-size: 60px; }
 
+.black-bg {
+  background-color: black;
+  background-image: none; }
+
 .hidden {
   display: none; }
 
@@ -47,7 +51,8 @@ body {
 
 #imgHolder {
   background-size: cover;
-  background-position: center; }
+  background-position: center;
+  background-repeat: no-repeat; }
 
 #vidHolder {
   object-fit: cover; }

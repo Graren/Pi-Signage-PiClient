@@ -1,6 +1,7 @@
+document.querySelector('body').classList.add('black-bg')
 const vidHolder = document.getElementById('vidHolder')
 const imgHolder = document.getElementById('imgHolder')
-
+let blockPapus = false
 let index = -1
 
 let content = []
@@ -34,6 +35,7 @@ let content = []
 //   }
 // ]
 
+let timeout
 const processContent = () => {
   try {
     index = index === content.length - 1 ? 0 : index + 1
@@ -52,7 +54,7 @@ const processContent = () => {
 
     if (file.format === 'mp4') {
       vidHolder.src = file.path
-
+      blockPapus = false
       if (file.adjustment) {
         vidHolder.style = `object-fit: ${file.adjustment};`
       }
@@ -65,18 +67,19 @@ const processContent = () => {
         ['jpg', 'jpeg', 'png'].indexOf(content[index + 1].format) > -1
       ) {
         // Makes transition between video and image smoother ( I think )
-        imgHolder.style = `background-image: url('${content[index + 1].path}');`
+        imgHolder.style.backgroundImage = `url('${content[index + 1].path}')`
       }
     } else if (['jpg', 'jpeg', 'png'].indexOf(file.format) > -1) {
-      imgHolder.style = `background-image: url('${file.path}')`
+      vidHolder.pause()
+      imgHolder.style.backgroundImage = `url('${file.path}')`
 
       if (file.adjustment) {
-        imgHolder.style += `background-size: ${file.adjustment};`
+        imgHolder.style.backgroundSize = file.adjustment
       }
 
       imgHolder.classList.remove('hidden')
       vidHolder.classList.add('hidden')
-      setTimeout(processContent, file.time * 1000)
+      timeout = setTimeout(processContent, file.time * 1000)
     } else {
       processContent()
     }
@@ -85,8 +88,11 @@ const processContent = () => {
   }
 }
 
-vidHolder.onended = processContent
-processContent()
+vidHolder.onended = () => {
+  if (!blockPapus) {
+    processContent()
+  }
+}
 
 setTimeout(() => {
   socket.emit('request-saved-state')
@@ -99,6 +105,8 @@ setTimeout(() => {
         path: file.servedPath
       }))
       if (previousContentLength === 0 && content.length > 0) {
+        blockPapus = true;
+        clearTimeout(timeout)
         processContent()
       }
     }

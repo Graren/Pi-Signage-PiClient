@@ -10,7 +10,6 @@ const fs = require('fs')
 const fetch = require('node-fetch')
 
 const WebSocket = require('ws')
-const 
 const device = {
   id: null,
   deviceGroupId: null,
