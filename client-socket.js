@@ -94,7 +94,7 @@ const initialize = async () => {
             const m = JSON.parse(message)
             if(m.action === CHANGE_PLAYLIST){
               const {newGroupId} = m
-              if(newGroupId){
+              if(newGroupId !== undefined){
                 device.deviceGroupId = newGroupId
               }
             }
