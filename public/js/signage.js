@@ -35,6 +35,14 @@ let content = []
 //   }
 // ]
 
+const removeLogoBg = () => {
+  document.querySelector('body').classList.remove('logo-center-bg')
+}
+
+const addLogoBg = () => {
+  document.querySelector('body').classList.add('logo-center-bg')
+}
+
 let timeout
 const processContent = () => {
   try {
@@ -42,6 +50,7 @@ const processContent = () => {
     let file = content[index]
 
     if (!file) {
+      addLogoBg()
       if (content.length > 0) {
         index = -1
         return processContent()
@@ -51,6 +60,8 @@ const processContent = () => {
         return
       }
     }
+
+    removeLogoBg()
 
     if (file.format === 'mp4') {
       vidHolder.src = file.path
@@ -108,6 +119,8 @@ setTimeout(() => {
         blockPapus = true;
         clearTimeout(timeout)
         processContent()
+      } else {
+        addLogoBg()
       }
     }
   })

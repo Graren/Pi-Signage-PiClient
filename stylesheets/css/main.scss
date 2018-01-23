@@ -17,6 +17,14 @@ body {
 .black-bg {
   background-color: black;
   background-image: none;
+  
+}
+
+.logo-center-bg {
+  background-image: url('../assets/bad-logo2.png');
+  background-size: unset;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .hidden {
