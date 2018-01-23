@@ -95,7 +95,9 @@ const initialize = async () => {
             const m = JSON.parse(message)
             if(m.action === CHANGE_PLAYLIST){
               const {newGroupId} = m
-              device.deviceGroupId = newGroupId
+              if(newGroupId){
+                device.deviceGroupId = newGroupId
+              }
             }
             pubsock.send(['websocket', message])
         }
