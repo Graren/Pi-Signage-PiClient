@@ -41,7 +41,7 @@ const getDeviceInfo = () =>
       const headers = {
         Authorization: `Bearer ${token.trim()}`
       }
-      const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.1.131:8000'
+      const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.2.150:8000'
       return fetch(`http://${host}/api/v1/dispositivo/info`, { headers })
     })
     .then(res => {
@@ -51,7 +51,7 @@ const getDeviceInfo = () =>
 const initialize = async () => {
   try {
     const websocket = await new Promise((resolve, reject) => {
-      const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.1.131:8000'
+      const host = process.env.REMOTE_SIGNAGE_SERVER || '192.168.2.150:8000'
       const ws = new WebSocket('ws://' + host)
       ws.on('open', function open () {
         console.log('Opened')
